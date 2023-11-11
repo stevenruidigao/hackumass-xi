@@ -186,12 +186,19 @@
                 last_time = now;
             }
 
+            var orientationQuat = [0, 0, 0, 1] // No rotation initially
+            var last_euler = [0, 0, 0]
+            var last_time_orientation = -1;
             function handleDeviceOrientation(event) {
                 console.log(event);
+                let now = Date.now();
+                let time_diff = (last_time_orientation > 0) ? (now - last_time_orientation) / 1000 : 0.016;
 
-                let alpha = event.alpha;
-                let beta = event.beta;
-                let gamma = event.gamma;
+                Quaternion.fromBetweenVectors(last_euler, [event.alpha, event.beta, event.gamma])
+                orientationQuat = Quaternion
+                // let alpha = event.alpha;
+                // let beta = event.beta;
+                // let gamma = event.gamma;
 
                 orientation = [alpha, beta, gamma];
 
