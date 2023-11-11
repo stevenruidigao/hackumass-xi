@@ -92,7 +92,7 @@
             let velocity = [0, 0, 0];
             let orientation = [0, 0, 0];
             let motion_points = 0;
-            const past_size = 30;
+            const past_size = 60;
             let past_acceleration = [Array(past_size), Array(past_size), Array(past_size)];
             let past_orientation = [Array(past_size), Array(past_size), Array(past_size)];
             let position = [0, 0, 0];
@@ -120,7 +120,7 @@
 
                 acceleration = [x, y, z];
 
-                if (calibrating === true && now - calibrate_start < 10000) {
+                if (calibrating === true && now - calibrate_start < 1000) {
                     acceleration_offset = acceleration_offset.map((axis, i) => axis + acceleration[i]);
                     acceleration_points ++;
                     document.getElementById('motion-data').innerText = '';
@@ -138,7 +138,7 @@
 
                 } else {
                     acceleration = acceleration.map((axis, i) => axis - acceleration_offset[i]);
-                    acceleration = acceleration.map(axis => parseFloat(axis.toFixed(4)));
+                    acceleration = acceleration.map(axis => Math.abs(axis) > 0.05 ? axis : 0);
 
                     let deg = Math.PI / 180;
                     let quaternion = Quaternion.fromEulerLogical(orientation[0] * deg, orientation[1] * deg, -orientation[2] * deg, 'ZXY');
@@ -146,17 +146,26 @@
                     let absolute_acceleration = quaternion.conjugate().rotateVector(acceleration);
                     // absolute_acceleration = absolute_acceleration.map(x => parseFloat(x.toFixed(1)));
 
-                    // absolute_acceleration = past_acceleration.map((axis, i) => {
-                    //     axis.push(absolute_acceleration[i]);
-                    //     axis.shift();
-                    //     return axis;
-                    // }).map(axis => axis.reduce((a, b) => a + b, 0) / axis.length);
+                    absolute_acceleration = past_acceleration.map((axis, i) => {
+                        axis.push(absolute_acceleration[i]);
+                        axis.shift();
+                        return axis;
+                    }).map(axis => axis.reduce((a, b) => a + b, 0) / axis.length);
 
-                    absolute_acceleration = absolute_acceleration.map(axis => parseFloat(axis.toFixed(3)));
+                    absolute_acceleration = absolute_acceleration.map(axis => parseFloat(axis.toFixed(2)));
 
-                    position = position.map((axis, i) => axis + velocity[i] * time_diff + absolute_acceleration[i] * time_diff * time_diff / 2);
-                    velocity = velocity.map((axis, i) => axis + absolute_acceleration[i] * time_diff);
-                    if (motion_points % 600 === 0) {
+
+                    // let position_diff = velocity[i] * time_diff + absolute_acceleration[i] * time_diff * time_diff / 2;
+                    // let velocity_diff = absolute_acceleration[i] * time_diff;
+
+                    // position = position.map((axis, i) => axis + (Math.abs(position_diff) > 0.01 ? position_diff : 0));
+                    // velocity = velocity.map((axis, i) => axis + (Math.abs(velocity_diff) > 0.01 ? velocity_diff : 0));
+
+                    if (motion_points % 60 === 0) {
+                        // document.getElementById('motion-data').innerText =
+                        //     `abs_accel: ${absolute_acceleration.join(', ')}\n` + 
+                        //     `pos_diff: ${position_diff}\n` +
+                        //     `vel_diff: ${velocity_diff}\n`;
                         document.getElementById('motion-data').innerText =
                             `abs_accel: ${absolute_acceleration.join(', ')}\n`;
                     }
