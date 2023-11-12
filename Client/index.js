@@ -5,7 +5,8 @@
 //msgs
 const socket = io();
 let type = ""; //screen or player
-const players = [];
+const players = []; // Players in the game
+const components = []; // Components in the game
 let ratio;
 
 /* Screen */
@@ -65,6 +66,9 @@ socket.on("gameStart", (lobby) => {
     if (type === "screen") {
         document.getElementById("LOG").innerText = "You are the screen! THE GAME HAS STARTED!!!";
         Object.values(lobby.game.players).forEach(p=>players.push(new Player(p.x, p.y, p.name)));
+        lobby.game.components.forEach(c=>{
+            components.push(makeComponent(c));
+        });
         document.getElementById("LOG").innerText += " Game has started.";
     } else {
         // Do player stuff here
@@ -104,4 +108,7 @@ setInterval(() => {
         p.updateVerticies();
         p.draw(ctx);
     })
+    components.forEach(c => {
+        c.draw(ctx);
+    });
 },20)

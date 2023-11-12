@@ -42,6 +42,7 @@ io.on("connection", (socket) => {
         if (lobby !== undefined && lobby.screenSocket === socket.id && lobby.playerSockets.length === 2 && lobby.game === undefined) {
             lobby.game = new g.Game(lobby);
             io.to(lobby.id).emit("gameStart", lobby);
+            lobby.game.changes = [];
             console.log(socket.id + " started game: " + lobby.id); //
         }
     });
@@ -73,6 +74,7 @@ setInterval(()=> {
     Object.values(l.lobbies).forEach(x=>{
         if (x.game) {
             io.to(x.id).emit("updateScreen", x.game)
+            x.game.changes = [];
         }
     });
 }, 20);
