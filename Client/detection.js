@@ -59,20 +59,20 @@
 
         if (Date.now() - last_move > 100) {
             let avg_angle = angle_sum / angle_count;
-            let scale = (Math.abs(avg_angle) - 20) / 30;
+            let scale = (Math.abs(avg_angle) - 10) / 70;
 
             if (recording) {
                 socket.emit('move', 0);
                 angle_sum = 0;
                 angle_count = 0;
 
-            } else if (avg_angle < -20) {
-                socket.emit('move', Math.max(-50, avg_angle * scale));
+            } else if (avg_angle < -10) {
+                socket.emit('move', Math.max(-80, avg_angle * scale));
                 angle_sum = 0;
                 angle_count = 0;
 
-            } else if (avg_angle > 20) {
-                socket.emit('move', Math.min(50, avg_angle * scale));
+            } else if (avg_angle > 10) {
+                socket.emit('move', Math.min(80, avg_angle * scale));
                 angle_sum = 0;
                 angle_count = 0;
 

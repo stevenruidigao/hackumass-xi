@@ -83,12 +83,12 @@ io.on('connection', (socket) => {
 
     // Game events
     socket.on('move', (movement) => {
-        // movement is a number between -50 and 50
+        // movement is a number between -80 and 80
         const lobby = l.sockets[socket.id];
         let game;
         if (lobby !== undefined && (game = lobby.game)) {
             console.log(socket.id + " is moving " + movement);
-            game.players[socket.id].vx = - movement / 2.5;
+            game.players[socket.id].vx = - movement / 4;
         }
     });
 

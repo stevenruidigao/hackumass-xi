@@ -58,7 +58,35 @@ class Ball extends Component {
         ctx.ellipse(this.x, this.y, 50, 50, 0, 0, 2 * Math.PI);//
         ctx.fill();
         ctx.stroke();
+
+        arrow({x: this.x-50, y: this.y+100}, {x: this.x+50, y: this.y+100}, 20);
+
+        function arrow (p1, p2, size) {
+            var angle = Math.atan2((p2.y - p1.y) , (p2.x - p1.x));
+            var hyp = Math.sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
+          
+            ctx.save();
+            ctx.translate(p1.x, p1.y);
+            ctx.rotate(angle);
+            
+            // line
+            ctx.beginPath();	
+            ctx.moveTo(0, 0);
+            ctx.lineTo(hyp - size, 0);
+            ctx.stroke();
+          
+            // triangle
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.lineTo(hyp - size, size);
+            ctx.lineTo(hyp, 0);
+            ctx.lineTo(hyp - size, -size);
+            ctx.fill();
+          
+            ctx.restore();
+        }
     }
+
 }
 
 //crank the wheel in a triangle shape
@@ -117,6 +145,7 @@ class JackBox extends Component {
         //star pattern
         strokeStar(this.x+40,this.y+40,10,5,2)
 
+        arrow({x: this.x, y: this.y+200}, {x: this.x, y: this.y+100}, 20);
 
         function strokeStar(x, y, r, n, inset) {
             ctx.save();
@@ -133,6 +162,31 @@ class JackBox extends Component {
             }
             ctx.closePath();
             ctx.stroke();
+            ctx.restore();
+        }
+
+        function arrow (p1, p2, size) {
+            var angle = Math.atan2((p2.y - p1.y) , (p2.x - p1.x));
+            var hyp = Math.sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
+          
+            ctx.save();
+            ctx.translate(p1.x, p1.y);
+            ctx.rotate(angle);
+          
+            // line
+            ctx.beginPath();	
+            ctx.moveTo(0, 0);
+            ctx.lineTo(hyp - size, 0);
+            ctx.stroke();
+          
+            // triangle
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.lineTo(hyp - size, size);
+            ctx.lineTo(hyp, 0);
+            ctx.lineTo(hyp - size, -size);
+            ctx.fill();
+          
             ctx.restore();
         }
     }

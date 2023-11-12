@@ -13,10 +13,10 @@ class Game {
         this.players = {};
 
         this.players[lobby.playerSockets[0]] = new Player(800, 400, lobby.playerSockets[0]);
-        this.getPlayer1 = () => this.players[lobby.playerSockets[0]];
+        this.player1 = this.players[lobby.playerSockets[0]];
 
         this.players[lobby.playerSockets[1]] = new Player(1200, 400, lobby.playerSockets[1]);
-        this.getPlayer2 = () => this.players[lobby.playerSockets[1]];
+        this.player2 = this.players[lobby.playerSockets[1]];
 
         this.components = [];
         this.level = 1;
@@ -27,7 +27,7 @@ class Game {
     }
     update() {
         if (this.level === 1){
-            if (this.getPlayer1() && this.getPlayer1().x > 1900 && this.getPlayer2() && this.getPlayer2().x < 100) {
+            if (this.player1 && this.player1.x > 1900 && this.player2 && this.player2.x < 100) {
                 this.level ++;
                 this.makeLevel(2);
             }
@@ -77,10 +77,10 @@ class Game {
 
         } else if (level === 2) {
             // jack box with single vertical line
-            this.getPlayer1().x = 800;
-            this.getPlayer1().y = 400;
-            this.getPlayer2().x = 1200;
-            this.getPlayer2().y = 400;
+            this.player1.x = 800;
+            this.player1.y = 400;
+            this.player2.x = 1200;
+            this.player2.y = 400;
 
             const jackbox1 = new Interactable(200, this.floorHeight-270, 'jackbox', ['vertical line']);
             const jackbox2 = new Interactable(1800, this.floorHeight-270, 'jackbox', ['vertical line']);
@@ -90,31 +90,31 @@ class Game {
 
         } else if (level === 3) {
             // move ball across screen horizontal line 
-            this.getPlayer1().x = 200;
-            this.getPlayer1().y = 400;
-            this.getPlayer2().x = 400;
-            this.getPlayer2().y = 400;
+            this.player1.x = 200;
+            this.player1.y = 400;
+            this.player2.x = 400;
+            this.player2.y = 400;
 
-            const ball = new Interactable(700, this.floorHeight-200, 'ball',
-                    ['horizontal line', 'horizontal line', 'horizontal line']);
-            
+            const ball = new Interactable(700, this.floorHeight-235, 'ball',
+                    ['horizontal line', 'horizontal line', 'horizontal line'],  (self)=>self.x+=400);
+            this.components.push(ball);
         // } else if (level === 4) {
         //     // pump balloon with alternating vertical lines
-        //     this.getPlayer1().x = 200;
-        //     this.getPlayer1().y = 400;
-        //     this.getPlayer2().x = 1800;
-        //     this.getPlayer2().y = 400;
+        //     this.player1.x = 200;
+        //     this.player1.y = 400;
+        //     this.player2.x = 1800;
+        //     this.player2.y = 400;
 
         //     const balloon = new Interactable(1000, this.floorHeight-200, 'balloon');
         } else if (level === 4) {
             // shake to make party popper go
-            this.getPlayer1().x = 200;
-            this.getPlayer1().y = 400;
-            this.getPlayer2().x = 400;
-            this.getPlayer2().y = 400;
+            this.player1.x = 200;
+            this.player1.y = 400;
+            this.player2.x = 400;
+            this.player2.y = 400;
 
-            const partyPopper = new Interactable(1800, this.floorHeight-200, 'partyPopper', [shak]);
-
+            const partyPopper = new Interactable(1800, this.floorHeight-200, 'popper', ['shake']);
+            this.components.push(partyPopper);
         }
     }
 
@@ -182,10 +182,9 @@ class Interactable extends Component{
             this.interactions.shift();
             if (this.interactions.length === 0) {
                 this.isDone = true;
-
-                if (this.onComplete) {
-                    this.onComplete(this);
-                }
+            }
+            if (this.onComplete) {
+                this.onComplete(this);
             }
         } 
     }
