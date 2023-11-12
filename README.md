@@ -9,20 +9,21 @@ Enter “No Strings Attached”, our hackathon creation. Our project aims to har
 "No Strings Attached" is an engaging co-op game designed for two players. In this unique experience, participants take on the role of puppeteers, wielding control over their puppets through the intuitive interface of their mobile devices. The gameplay involves manipulating the movement of the puppets by skillfully tilting their phones and interacting with in-game objects using gestures in the air. In order to clear all of the challenges, it is imperative that players coordinate their efforts and communicate their intentions.
 
 ## How we built it
-In order to accurately track the orientation and position of the mobile device, we used the THREE.js library to store and manipulate quaternions, a mathematical representation of orientation that does not carry the risk of singularities. These quaternions were used to transform measurements taken relative to the gyroscope and accelerometer to absolute measurements based on a set of axes determined during calibration. To clean and filter the noisy sensor data, we implemented a low and high pass to exclude outliers in addition to a  moving arithmetic mean. 
+To accurately monitor the orientation and position of each mobile device, we used the THREE.js library, utilizing quaternions as a robust mathematical representation of orientation that avoids singularities. Using these quaternions, we transformed data obtained from the gyroscope and accelerometer—originally relative measurements—into absolute measurements based on a predefined set of axes established during a calibration period.
 
-The positional data processed from the sensors was then fed into $Q to obtain point clouds which we converted into symbols. We also used Socket.IO to allow for communication between the main screen, phones, and server.  We built our own pendulum physics and animations, and created our own line-drawn sprites.
+The processed positional data from the sensors was then channeled into $Q (“Q-dollar”) to generate point clouds, which were then recognized as symbols. Our system's communication infrastructure was facilitated by Socket.IO, enabling seamless interaction between the main screen, phones, and the server. Additionally, we took a hands-on approach by constructing our own pendulum physics and animations with canvas, and developing custom line-drawn sprites to create a unique visual experience.
 
 ## Challenges we ran into
-We initially had significant issues with noise in the acceleration data, causing heavy drift in the calculated velocities over time. Calibrating the accelerometer and improving the accuracy with which we identified shapes from sets of points were both difficult tasks.
+We initially had significant issues with noise in the acceleration data, causing heavy drift in the calculated velocities over time. Calibrating the accelerometer and improving the accuracy with which we identified shapes from sets of points were both difficult tasks. Ultimately, to enhance the accuracy of our sensor data, we implemented both low and high pass filters, excluding outliers, and incorporated a moving arithmetic mean to mitigate noise. 
+
+The manual creation of a game interface posed a significant challenge, particularly in addressing a complex class definition problem during the initial stages of designing the game framework. Overcoming this obstacle required careful consideration and strategic problem-solving to ensure a smooth development process.
+
 
 ## Accomplishments that we're proud of
-We were able to make the characters move according to the phones’ tilt, and incorporate the mechanic into a playable demonstration! We are also proud of our smooth physics simulation of the limbs as the puppets move, as well as the canvas line art, especially mini Snorlax!  
+We successfully transformed an initially subpar experience into fluid gameplay where character movements align with the tilt of the phones, integrating the mechanic into a playable demonstration. In addition, we crafted a fluid physics simulation that brings a natural quality to the puppets' limb movements. Our pride also extends to the hand-coded canvas art, featuring the adorable mini Snorlax, which contributes greatly to the overall visual appeal of our project.
 
 ## What we learned
-A lot of linear algebra, quaternions, and rotations
-Sensors can be extremely difficult to deal with, especially when multiple measurements are added up over time.
-Quaternions can be used to represent rotations and make many operations on rotations a lot easier.
+Dealing with sensor drift and a phenomenon known as gimbal lock turned out to be quite a puzzle, particularly when dealing with multiple measurements over time. To resolve this, we learned a significant amount about basic signal processing as well as how to use quaternions to represent orientation. This approach significantly improved the performance of successive rotations compared to representations like axis angle and Euler angles.
 
 ## What's next for No Strings Attached
-Improvements all around! If we had more time, we would have hoped to improve our process for identifying gestures. 
+Improvements all around! Given additional time, we aspire to refine our gesture recognition process, aiming to identify and incorporate more complex gestures into the gameplay. Expanding the variety of levels is also on our radar to offer players a more diverse and challenging progression. Additionally, to elevate the overall polish and sophistication of the game, we would like to explore the possibility of implementing physics within a dedicated game engine like Unity, to ensure a seamless and more immersive gaming experience.
