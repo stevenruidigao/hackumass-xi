@@ -20,13 +20,13 @@ socket.on("gameCreated", (data) => {
 socket.on("newJoin", (data) => {
   console.log(data);
   document.getElementById("players").innerText =
-      document.getElementById("players").innerText + " " + data;
+    document.getElementById("players").innerText + " " + data;
 });
 
 socket.on("updateScreen", (game) => {
   if (type === "screen") {
-    Object.values(game.players).forEach(p => {
-      players.forEach(x => {
+    Object.values(game.players).forEach((p) => {
+      players.forEach((x) => {
         if (x.name === p.name) {
           x.update(p);
         }
@@ -40,8 +40,10 @@ socket.on("joinedGame", (lobby) => {
   type = "player";
   // document.getElementById("LOG").innerText= "You are a player!";
   document.getElementById("id").innerText = lobby.id;
-  document.getElementById("players").innerText =
-      lobby.playerSockets.reduce((acc, e) => acc + " " + e, "");
+  document.getElementById("players").innerText = lobby.playerSockets.reduce(
+    (acc, e) => acc + " " + e,
+    "",
+  );
 });
 
 function move() {
@@ -54,8 +56,12 @@ function move() {
   }
 }
 
-function movePlayer(vx, vy) { socket.emit("move", [ vx, vy ]) }
-function actPlayer(type) { socket.emit("action", type) }
+function movePlayer(vx, vy) {
+  socket.emit("move", [vx, vy]);
+}
+function actPlayer(type) {
+  socket.emit("action", type);
+}
 
 /* Both */
 socket.on("gameStart", (lobby) => {
@@ -63,8 +69,9 @@ socket.on("gameStart", (lobby) => {
   if (type === "screen") {
     // document.getElementById("LOG").innerText = "You are the screen! THE GAME
     // HAS STARTED!!!";
-    Object.values(lobby.game.players)
-        .forEach(p => players.push(new Player(p.x, p.y, p.name)));
+    Object.values(lobby.game.players).forEach((p) =>
+      players.push(new Player(p.x, p.y, p.name)),
+    );
     document.getElementById("start-menu").style.display = "none";
     // document.getElementById("LOG").innerText += " Game has started.";
   } else {
@@ -78,7 +85,7 @@ function showJoin() {
   document.getElementsByClassName("player-lobby")[0].style.display = "inline";
 }
 function joinGame() {
-  console.log(document.getElementById("join-code").value)
+  console.log(document.getElementById("join-code").value);
   socket.emit("joinGame", document.getElementById("join-code").value);
 }
 function newGame() {
@@ -86,7 +93,9 @@ function newGame() {
   document.getElementsByClassName("screen-lobby")[0].style.display = "inline";
   socket.emit("newGame");
 }
-function startGame() { socket.emit("start"); }
+function startGame() {
+  socket.emit("start");
+}
 
 // graphics
 let canvas = document.getElementById("canvas");
@@ -110,11 +119,11 @@ let ctx = canvas.getContext("2d");
 // ctx.scale(ratio, ratio);
 
 setInterval(() => {
-  ctx.fillStyle = "rgb(200,200,200)"
+  ctx.fillStyle = "rgb(200,200,200)";
   // ctx.fillRect(0,0,2000,1000);
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-  players.forEach(p => {
+  players.forEach((p) => {
     p.updateVerticies();
     p.draw(ctx);
-  })
-}, 20)
+  });
+}, 20);
