@@ -2,6 +2,9 @@
 const lineLineCross = require("./collision.js");
 const players = [];
 const tickables = [];
+
+const PLAYER_REACH = 50;
+
 class Game {
     constructor(lobby) {
         this.players = {};
@@ -26,6 +29,14 @@ class Game {
         obj3.addInteractions("circle");
 
         const ground = new Component()
+    }
+    action(interaction, player) {
+        const x = player.x;
+        this.components.forEach(c=> {
+            if (Math.abs(c.x - x) <= PLAYER_REACH) {
+                c.dointeraction(interaction);
+            }
+        })
     }
 }
 class Component {

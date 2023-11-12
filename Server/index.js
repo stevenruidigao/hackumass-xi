@@ -57,6 +57,11 @@ io.on("connection", (socket) => {
     });
     socket.on("action", (data) => {
         // Action is a string of the action
+        const lobby = l.sockets[socket.id];
+        let game;
+        if (lobby !== undefined && (game = lobby.game)) {
+            game.action(data, game.players[socket.id]);
+        }
     });
     
 })
