@@ -88,26 +88,18 @@ let canvas = document.getElementById("canvas");
 // H: 1075, W: 1920
 // Width of player is about 50 Width, around 150 Height?
 // Lets try W:H to be 2:1 and playerWidth to be 1/20 of the width
-/*let h = window.innerHeight;
+// Currently, we are just using full screen, which means that relative height might vary between computers
+let h = window.innerHeight;
 let w = window.innerWidth;
-if (w > 2 * h) {
-    w = 2 * h;
-} else {
-    h = 0.5 * w;
-}
 ratio = w/2000;
-console.log("Width: " + w);
-console.log("ratio: " + ratio);*/
-canvas.height = window.innerHeight;
-canvas.width = window.innerWidth;
-
+canvas.height = h;
+canvas.width = w;
 let ctx = canvas.getContext("2d");
-//ctx.scale(ratio, ratio);
+ctx.scale(ratio, ratio);
 
 setInterval(() => {
     ctx.fillStyle = "rgb(200,200,200)"
-    //ctx.fillRect(0,0,2000,1000);
-    ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+    ctx.fillRect(0,0,window.innerWidth/ratio,window.innerHeight/ratio);
     players.forEach(p =>{
         p.updateVerticies();
         p.draw(ctx);
