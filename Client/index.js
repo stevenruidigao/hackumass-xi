@@ -1,17 +1,12 @@
 /* Figure out device via button input
  * Display: Button for starting game
  * Player: Shapes (based on accelerometer calculations)
- * 
- * 
- * 
- * 
- * 
- * 
  */
 //msgs
 const socket = io();
-let type = "";
+let type = ""; //screen or player
 const players = [];
+let ratio;
 
 /* Screen */
 socket.on("gameCreated", (data) => {
@@ -28,8 +23,7 @@ socket.on("newJoin", (data) => {
 });
 
 socket.on("updateScreen", (game) => {
-    console.log(game); //
-    if (type === "server") {
+    if (type === "screen") {
         Object.values(game.players).forEach(p=> {
             players.forEach(x=> {
                 if (x.name === p.name) {
@@ -48,6 +42,16 @@ socket.on("joinedGame", (lobby) => {
     document.getElementById("players").innerText= lobby.playerSockets.reduce((acc, e)=>acc + " " + e, "");
 });
 
+function move() {
+    const x = document.getElementById("moveX").value * 1;
+    const y = document.getElementById("moveY").value * 1;
+    console.log(x);
+    console.log(y);
+    if (x * y !== NaN) {
+        movePlayer(x, y);
+    }
+}
+
 function movePlayer(vx, vy) {
     socket.emit("move",[vx, vy])
 }
@@ -62,9 +66,9 @@ socket.on("gameStart", (lobby) => {
         document.getElementById("LOG").innerText = "You are the screen! THE GAME HAS STARTED!!!";
         Object.values(lobby.game.players).forEach(p=>players.push(new Player(p.x, p.y, p.name)));
         document.getElementById("LOG").innerText += " Game has started.";
-        document.getElementById("controls").style.display = "inLine";
     } else {
         // Do player stuff here
+        document.getElementById("controls").style.display = "inLine";
     }
 });
 
@@ -78,38 +82,33 @@ function newGame() {
 function startGame() {
     socket.emit("start");
 }
-/*function move() {
-    console.log(document.getElementById("moveX").value);//
-    console.log(document.getElementById("moveY").value);//
-    const x = document.getElementById("moveX").value * 1;
-    const y = document.getElementById("moveY").value * 1;
-    if (x * y != NaN) {
-        socket.emit("move", [x, y]);
-    }
-}*/
 
 //graphics
 let canvas = document.getElementById("canvas");
+// H: 1075, W: 1920
+// Width of player is about 50 Width, around 150 Height?
+// Lets try W:H to be 2:1 and playerWidth to be 1/20 of the width
+/*let h = window.innerHeight;
+let w = window.innerWidth;
+if (w > 2 * h) {
+    w = 2 * h;
+} else {
+    h = 0.5 * w;
+}
+ratio = w/2000;
+console.log("Width: " + w);
+console.log("ratio: " + ratio);*/
 canvas.height = window.innerHeight;
 canvas.width = window.innerWidth;
-let ctx = canvas.getContext("2d");
 
-let x = 300;
-let y = 300;
-let test = new Player(400,400);
-players.push(test);
+let ctx = canvas.getContext("2d");
+//ctx.scale(ratio, ratio);
+
 setInterval(() => {
     ctx.fillStyle = "rgb(200,200,200)"
-    ctx.fillRect(0,0,window.innerWidth,window.innerHeight);
-    /*players.forEach(p=> {
-        p.updatePosition();
-        p.updateVerticies();
-        p.draw(ctx);
-    });*/
-    test.updatePosition();
-    //test.updateVerticies();
+    //ctx.fillRect(0,0,2000,1000);
+    ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
     players.forEach(p =>{
-        //p.updatePosition();
         p.updateVerticies();
         p.draw(ctx);
     })

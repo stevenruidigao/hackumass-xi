@@ -1,4 +1,4 @@
-const lobbies = [];
+const lobbies = {};
 const sockets = {};
 
 class Lobby {

@@ -28,7 +28,6 @@ io.on("connection", (socket) => {
         console.log(socket.id + " created game: " + lobby.id);//
     });
     socket.on("joinGame", (code)=> {
-        console.log(socket.id + " inputted code: "+ code);//
         const lobby = l.lobbies[code];
         if (lobby !== undefined && lobby.addPlayer(socket.id)) {
             socket.join(lobby.id);
@@ -41,8 +40,6 @@ io.on("connection", (socket) => {
     socket.on("start", ()=> {
         const lobby = l.sockets[socket.id];
         if (lobby !== undefined && lobby.screenSocket === socket.id && lobby.playerSockets.length === 2 && lobby.game === undefined) {
-            console.log("Game starting, sending lobby: ")
-            console.log(lobby);
             lobby.game = new g.Game(lobby);
             io.to(lobby.id).emit("gameStart", lobby);
             console.log(socket.id + " started game: " + lobby.id); //
@@ -50,7 +47,7 @@ io.on("connection", (socket) => {
     });
     // Game events
     socket.on("move", (data) => {
-        // data is velocity in form [x, y]
+        // data is velocity in form [vx, vy]
         const lobby = l.sockets[socket.id];
         let game;
         if (lobby !== undefined && (game = lobby.game)) {
@@ -65,13 +62,12 @@ io.on("connection", (socket) => {
 })
 
 setInterval(()=> {
-    g.players.forEach(p=> {
+    Object.values(g.players).forEach(p=> {
         p.update();
     });
-    l.lobbies.forEach(l=>{
-        if (l.game) {
-            console.log("Update: ", l.game);
-            io.to(l.id).emit("updateScreen", l.game)
+    Object.values(l.lobbies).forEach(x=>{
+        if (x.game) {
+            io.to(x.id).emit("updateScreen", x.game)
         }
     });
 }, 20);
