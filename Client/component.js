@@ -36,7 +36,6 @@ class Flag extends Component {
         this.height = height;
     }
     draw(ctx) {
-        console.log("TESTING")
         ctx.strokeRect(this.x, this.y-100, 100, 50);
         ctx.beginPath();
         ctx.moveTo(this.x,this.y);

@@ -2,8 +2,9 @@ const armLength = 50;
 const legLength = 90;
 
 class Player extends Component{
-    constructor(x, y, name='') {
+    constructor(x, y, name, number) {
         super(x, y, name);
+        this.number = number + 1;
         this.vx = 0;
         this.vy = 0;
 
@@ -134,7 +135,10 @@ class Player extends Component{
         ctx.lineTo(this.x+this.vtx.legR.x+25,this.y+this.vtx.legR.y+140);//
         ctx.stroke();
 
-        
+        // Number
+        ctx.font = "40px sans-serif";
+        ctx.strokeText(this.number, this.x-10, this.y+this.vtx.head.y-60);
+
         //head
         ctx.beginPath();
         ctx.ellipse(this.x+this.vtx.head.x, this.y+this.vtx.head.y, 50, 50, 0, 0, 2 * Math.PI);//

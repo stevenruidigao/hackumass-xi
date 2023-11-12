@@ -89,12 +89,7 @@ socket.on('gameStart', (lobby) => {
     console.log("Recieved lobby: ");
     console.log(lobby);
     if (type === 'screen') {
-        Object.values(lobby.game.players).forEach(p=>players.push(new Player(p.x, p.y, p.name)));
-
-        // lobby.game.components.forEach(c=>{
-        //     components.push(makeComponent(c));
-        // });
-
+        Object.values(lobby.game.players).forEach((p, i)=>players.push(new Player(p.x, p.y, p.name, i)));
         document.getElementById('start-menu').style.display = 'none';
         
     } else {
