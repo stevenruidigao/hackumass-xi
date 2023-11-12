@@ -54,7 +54,7 @@ socket.on('updateScreen', (game) => {
                 components.push(new Popper(c.x, c.y, c.width, c.height))
                 if (c.isDone) 
                     confetti({
-                        particleCount: 300,
+                        particleCount: 600,
                         spread: 180
                     });
             }

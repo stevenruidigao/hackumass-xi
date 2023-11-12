@@ -72,14 +72,12 @@
             } else if (avg_angle < -20) {
                 //socket.emit('move', Math.max(-80, avg_angle * scale));
                 socket.emit('move', avg_angle);
-                console.log("emitting angle: " + avg_angle);
                 angle_sum = 0;
                 angle_count = 0;
 
             } else if (avg_angle > 20) {
                 //socket.emit('move', Math.min(80, avg_angle * scale));
                 socket.emit('move', avg_angle)
-                console.log("emitting angle: " + avg_angle);
                 angle_sum = 0;
                 angle_count = 0;
 
@@ -210,13 +208,13 @@
             init_once = true;
         }
         curr_orientation.setFromEuler(current_euler);
-        absolute_orientation = curr_orientation.multiply(rotation_offset);
+        absolute_orientation = initial_orientation.multiply(rotation_offset);
         absolute_euler = new THREE.Euler(); // [alpha, beta, gamma]
-        absolute_euler.setFromQuaternion(initial_orientation.multiply(rotation_offset));
+        absolute_euler.setFromQuaternion(absolute_orientation);
 
         // tilt((event.alpha > 180) ? event.alpha  - 360 : event.alpha);
-        tilt(absolute_euler.x * rad_to_deg);
-        console.log(absolute_euler.x);
+        tilt(current_euler.z * rad_to_deg);
+        console.log(absolute_euler.z);
 
         // var p = document.createElement('p');
         // p.innerText = absolute_euler.x * rad_to_deg + ' ' + absolute_euler.y * rad_to_deg + ' ' + absolute_euler.z * rad_to_deg;

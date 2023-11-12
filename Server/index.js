@@ -72,8 +72,8 @@ io.on('connection', (socket) => {
         
         // data: {height: window.innerHeight, ratio: ratio}
         const lobby = l.sockets[socket.id];
-        if (lobby !== undefined && lobby.screenSocket === socket.id && lobby.playerSockets.length >= 1 && lobby.game === undefined) {//
-        //if (lobby !== undefined && lobby.screenSocket === socket.id && lobby.playerSockets.length === 2 && lobby.game === undefined) {
+        //if (lobby !== undefined && lobby.screenSocket === socket.id && lobby.playerSockets.length >= 1 && lobby.game === undefined) {//
+        if (lobby !== undefined && lobby.screenSocket === socket.id && lobby.playerSockets.length === 2 && lobby.game === undefined) {
             lobby.game = new g.Game(lobby, data.height/data.ratio, data.ratio);
             io.to(lobby.id).emit('gameStart', lobby);
             lobby.game.changes = [];
@@ -88,9 +88,9 @@ io.on('connection', (socket) => {
         let game;
         if (lobby !== undefined && (game = lobby.game)) {
             console.log(socket.id + " is moving " + movement);
-            game.players[socket.id].vx = - movement / 4.5;//movement / 6;
+            game.players[socket.id].vx = (movement > 0 ? 1 : -1) * Math.min(Math.abs(movement)/5, 15);
         }
-    });
+    });6
 
     socket.on('action', (data) => {
         // Action is a string of the action

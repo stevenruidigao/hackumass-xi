@@ -49,7 +49,7 @@ class Game {
             }
         }
         else if (this.level === 5) {
-            console.log("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+            
         }
         
         this.components.forEach(c => {
