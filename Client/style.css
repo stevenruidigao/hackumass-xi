@@ -1,13 +1,86 @@
+html {
+    overflow-x: hidden;
+}
 p {
     color:blue;
 }
 #canvas {
-    /*position:absolute;
+    position:absolute;
     top:0px;
-    left:0px;*/
+    left:0px;
 }
 
 
 #controls {
     display:none;
 }
+
+#start-menu {
+    position: absolute;
+    background-color:rgb(255, 245, 140);
+    top:50%;
+    left:50%;
+    width:80%;
+    height:80%;
+    border-radius:25px;
+    transform: translate(-50%, -50%);
+    align-items: center;
+    display:flex;
+    justify-content: center;
+  }
+
+  .home-button {
+    background-color: #FFFFFF;
+    border: 1px solid #222222;
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: #222222;
+    cursor: pointer;
+    display: inline-block;
+    font-family: Circular,-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 20px;
+    margin: 0;
+    outline: none;
+    padding: 26px 46px;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    touch-action: manipulation;
+    transition: box-shadow .2s,-ms-transform .1s,-webkit-transform .1s,transform .1s;
+    user-select: none;
+    -webkit-user-select: none;
+    width: auto;
+  }
+
+  .home-button2 {
+    padding:8px;
+  }
+
+  .center-buttons {
+    padding:50px;
+    align-content: center;
+    text-align: center;
+  }
+  .screen-lobby {
+    padding:50px;
+    align-content: center;
+    text-align: center;
+    display:none;
+  }
+  .player-lobby {
+    padding:50px;
+    align-content: center;
+    text-align: center;
+    display:none;
+  }
+
+  #join-code {
+    background-color:white;
+    border-color:black;
+    border-radius:10px;
+    width:290px;
+    height:30px;
+    float:left;
+  }

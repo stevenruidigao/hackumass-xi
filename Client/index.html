@@ -10,10 +10,9 @@
     <script src="player.js"></script>
 </head>
 <body>
-    <p>uwu owo uwuwuwuwuuwuwuwuwuwuwuwu joe chiuwu</p>
-    <p id="LOG">???</p>
     <p>Your game id is: <span id="id"> Nonexistent</span></p>
     <p>Current Players in the game are: <span id="players"></span></p>
+    
     <canvas id="canvas"></canvas>
     <script src="index.js"></script>
     <input type="text"id="join">
@@ -25,5 +24,24 @@
         <input type="text"id="moveY">
         <button onclick="move()">Move</button>
     </span>
+
+
+    <div class="home">
+        <div id="start-menu" class = "reset-home">
+            <div class="center-buttons">
+                <h1>Stringy Circlejerk</h1>
+                <button class="home-button" onclick="newGame()">Create New Game</button>
+                <button class="home-button" onclick="showJoin()">Join Existing Game</button>
+            </div>
+            <div class="screen-lobby">
+                <h1>Creating New Game with Id:<span id="game-id"></span></h1>
+                <button class="home-button" onclick="startGame()">START</button>
+            </div>
+            <div class="player-lobby">
+                <h1>Input Code:</h1>
+                <input id="join-code">
+                <button class="home-button home-button2" onclick="joinGame()">Join</button>
+            </div>
+        </div>
 </body>
 </html>
