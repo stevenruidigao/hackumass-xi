@@ -121,7 +121,7 @@ class Game {
         const x = player.x;
 
         this.components.forEach(c => {
-            if (Math.abs(c.x - x) <= PLAYER_REACH) {
+            if (Math.abs(c.x - x) <= PLAYER_REACH && c.isInteractable) {
                 c.doInteraction(interaction);
             }
         })
