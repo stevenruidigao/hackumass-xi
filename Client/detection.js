@@ -207,9 +207,9 @@
         tilt(absolute_euler.x * rad_to_deg);
         console.log(absolute_euler.x);
 
-        var p = document.createElement('p');
-        p.innerText = absolute_euler.x * rad_to_deg + ' ' + absolute_euler.y * rad_to_deg + ' ' + absolute_euler.z * rad_to_deg;
-        document.body.appendChild(p);
+        // var p = document.createElement('p');
+        // p.innerText = absolute_euler.x * rad_to_deg + ' ' + absolute_euler.y * rad_to_deg + ' ' + absolute_euler.z * rad_to_deg;
+        // document.body.appendChild(p);
     }
 
     function requestPermissions(callback) {

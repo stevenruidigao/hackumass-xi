@@ -1,9 +1,9 @@
 
 const lineLineCross = require('./collision.js');
 const players = [];
-const tickables = [];
+//const tickables = [];
 
-const PLAYER_REACH = 50;
+const PLAYER_REACH = 125;
 
 class Game {
     constructor(lobby, floorHeight, ratio) {
@@ -27,20 +27,24 @@ class Game {
     }
     update() {
         if (this.level === 1){
-            if (this.getPlayer1().x > 1900 && this.getPlayer2().x < 100) {
-                this.makeLevel(++this.level);
+            if (this.getPlayer1() && this.getPlayer1().x > 1900 && this.getPlayer2() && this.getPlayer2().x < 100) {
+                this.level ++;
+                this.makeLevel(2);
             }
         } else if (this.level === 2) {
-            if (this.components[0].isDone) {
-                this.makeLevel(this.level++);
+            if (this.components[0].isDone && this.components[1].isDone) {
+                this.level ++;
+                this.makeLevel(3);
             }
         } else if (this.level === 3) {
             if (this.components[0].x > 1800) { //roll ball to the right
-                this.makeLevel(this.level++);
+                this.level ++;
+                this.makeLevel(4);
             }
         } else if (this.level === 4) {
             if (this.components[0].isDone) {
-                this.makeLevel(this.level++);
+                this.level++;
+                this.makeLevel(5);
             }
         }
         else if (this.level === 5) {
@@ -65,8 +69,8 @@ class Game {
         if (level === 1){
             // player 1 moves to the right, player 2 moves to the left
 
-            const flag1 = new Component(1900, this.floorHeight-200, ()=>console.log('success'), 'flag');
-            const flag2 = new Component(100, this.floorHeight-200, ()=>console.log('success'), 'flag');
+            const flag1 = new Component(1900, this.floorHeight-200, 'flag');
+            const flag2 = new Component(100, this.floorHeight-200, 'flag');
             
             this.components.push(flag1);
             this.components.push(flag2);
@@ -78,8 +82,8 @@ class Game {
             this.getPlayer2().x = 1200;
             this.getPlayer2().y = 400;
 
-            const jackbox1 = new Interactable(200, 5, ()=>console.log('success'), 'jackbox');
-            const jackbox2 = new Interactable(1800, 5, ()=>console.log('success'), 'jackbox');
+            const jackbox1 = new Interactable(200, this.floorHeight-270, 'jackbox', ['vertical line']);
+            const jackbox2 = new Interactable(1800, this.floorHeight-270, 'jackbox', ['vertical line']);
             
             this.components.push(jackbox1);
             this.components.push(jackbox2);
@@ -91,25 +95,25 @@ class Game {
             this.getPlayer2().x = 400;
             this.getPlayer2().y = 400;
 
-            const ball = new Interactable(700, 5, ()=>console.log('success'), 'ball');
+            const ball = new Interactable(700, this.floorHeight-200, 'ball',
+                    ['horizontal line', 'horizontal line', 'horizontal line']);
             
+        // } else if (level === 4) {
+        //     // pump balloon with alternating vertical lines
+        //     this.getPlayer1().x = 200;
+        //     this.getPlayer1().y = 400;
+        //     this.getPlayer2().x = 1800;
+        //     this.getPlayer2().y = 400;
+
+        //     const balloon = new Interactable(1000, this.floorHeight-200, 'balloon');
         } else if (level === 4) {
-            // pump balloon with alternating vertical lines
-            this.getPlayer1().x = 200;
-            this.getPlayer1().y = 400;
-            this.getPlayer2().x = 1800;
-            this.getPlayer2().y = 400;
-
-            const balloon = new Interactable(1000, 5, ()=>console.log('success'), 'balloon');
-
-        } else if (level === 5) {
             // shake to make party popper go
             this.getPlayer1().x = 200;
             this.getPlayer1().y = 400;
             this.getPlayer2().x = 400;
             this.getPlayer2().y = 400;
 
-            const partyPopper = new Interactable(1800, 5, ()=>console.log('success'), 'partyPopper');
+            const partyPopper = new Interactable(1800, this.floorHeight-200, 'partyPopper', [shak]);
 
         }
     }
@@ -117,24 +121,24 @@ class Game {
     action(interaction, player) {
         const x = player.x;
 
-        this.components.forEach(c=> {
+        this.components.forEach(c => {
             if (Math.abs(c.x - x) <= PLAYER_REACH) {
-                c.dointeraction(interaction);
+                c.doInteraction(interaction);
             }
         })
     }
 }
 
 class Component {
-    constructor(x, y, img=null, name='') {
+    constructor(x, y, name='') {
         this.x = x;
         this.y = y;
         this.vx = 0;
         this.vy = 0;
         this.width = 50;
         this.height = 50;
-        this.type = img; // Name of a type of drawing
-        this.name = name; // Name/id of the Interactable
+        //this.type = img; // Name of a type of drawing19
+        this.type = name; // Name/id of the Interactable
         this.isInteractable = false;
         this.data = {};
     }
@@ -161,43 +165,34 @@ class Component {
 }
 
 class Interactable extends Component{
-    constructor(x, y, onComplete, img=null, name=null, reset=true) {
-        super(x, y, img, name);
-        this.interactions = [];
-        this.interactionsLeft = [];
-        this.complete = onComplete;
+    constructor(x, y, name, interactions, onComplete=()=>{}) {
+        super(x, y, name);
+        this.interactions = interactions;
         this.isInteractable = true;
-        this.reset = reset;
-        this.isDone = false;
+        this.isDone = false
+        this.onComplete = onComplete;
     }
 
     addInteractions(...actions) {
-        actions.forEach(x=>this.interactions.push(x));
+        actions.forEach(x => this.interactions.push(x));
     }
 
-    doInteraction(action) {
-        if (action === this.interactionsLeft[0]) {
-            this.interactionsLeft.shift();
-
-            if (this.interactionsLeft.length === 0) {
+    doInteraction(action) { // action is a string, either horiz or vert line
+        if (this.interactions.length > 0 && action === this.interactions[0]) {
+            this.interactions.shift();
+            if (this.interactions.length === 0) {
                 this.isDone = true;
-                this.complete(this);
+
+                if (this.onComplete) {
+                    this.onComplete(this);
+                }
             }
-
-        } else if (this.reset) {
-            this.resetInteractions();
-        }
-
-        this.game.changes.push(this);
+        } 
     }
 
-    resetInteractions() {
-        this.interactionsLeft = this.interactions.map(x=>x);
-        this.game.changes.push(this);
-    }
 }
 
-class TimedInteractable extends Interactable {
+/*class TimedInteractable extends Interactable {
     constructor(game, x, y, onComplete, img=null, name=null, reset=true, time=3) {
         super(game, x, y, oncomplete, img, name, reset);
         // time is in seconds, this.time is in 0.02 seconds
@@ -213,7 +208,7 @@ class TimedInteractable extends Interactable {
             this.resetInteractions();
         }
     }
-}
+}*/
 
 class Player {
     constructor(x, y, name) {
@@ -255,4 +250,4 @@ class Player {
     }
 }
 
-module.exports = {Game, Component, Interactable, TimedInteractable, Player, players}
+module.exports = {Game, Component, Interactable, Player, players}

@@ -33,17 +33,29 @@ socket.on('updateScreen', (game) => {
             });
         });
         components = [];
-        console.log(game.components)
         game.components.forEach(c=> {
-            if (c.name == "flag") {
+            if (c.type == "flag") {
                 components.push(new Flag(c.x,c.y,c.width,c.height));
             }
-            else if (c.name == "jackbox") {
-                components.push(new JackBox(c.x, c.y, c.width, c.height))
+            else if (c.type == "jackbox") {
+                let j = new JackBox(c.x, c.y, c.width, c.height);
+                if (c.isDone) j.turnsLeft = 0;
+                components.push(j);
+            }
+            else if (c.type == "ball") {
+                components.push(new Ball(c.x, c.y, c.width, c.height))
+
+            }
+            else if (c.type == "pump") {
+                components.push(new Pump(c.x, c.y, c.width, c.height))
+
+            }
+            else if (c.type == "popper") {
+                components.push(new Popper(c.x, c.y, c.width, c.height))
 
             }
         });
-        console.log(components)
+        console.log(game.components)
     }
 });
 
@@ -151,6 +163,7 @@ canvas.height = h;
 canvas.width = w;
 let ctx = canvas.getContext('2d');
 ctx.scale(ratio, ratio);
+ctx.lineWidth = 2;
 
 setInterval(() => {
     ctx.fillStyle = 'rgb(200,200,200)';
@@ -161,8 +174,8 @@ setInterval(() => {
         let cWidth = ctx.width;
         ctx.width *= 1.5
         ctx.beginPath();
-        ctx.moveTo(0, h/ratio - 200/ratio);
-        ctx.lineTo(2000, h/ratio - 200/ratio);//
+        ctx.moveTo(0, h/ratio - 190);
+        ctx.lineTo(2000, h/ratio - 190);
         ctx.stroke();
         ctx.width = cWidth;
     }

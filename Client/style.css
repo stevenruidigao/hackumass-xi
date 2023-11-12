@@ -6,7 +6,7 @@ p {
     color:#15514A;
 }
 
-p, h1 {
+p, h1, h2 {
     font-family: Avenir, Montserrat, Corbel, 'URW Gothic', source-sans-pro, sans-serif;
 }
 
@@ -29,14 +29,22 @@ body {
     background-color:#F5F3F6;
     top: 50%;
     left: 50%;
-    width: 80%;
+    width: 90%;
+    max-width: 600px;
     height: 80%;
+    max-height: 500px;
     border-radius: 25px;
     transform: translate(-50%, -50%);
     align-items: center;
     display: flex;
     justify-content: center;
 }
+
+/* @media screen and (min-width: 600px) {
+    #start-menu {
+        width: 500px;
+    }
+} */
 
 .home-button {
     cursor: pointer;
@@ -58,7 +66,6 @@ body {
 }
 
 .button {
-	
 	--offset: 10px;
 	--border-size: 2px;
 	
@@ -104,20 +111,20 @@ padding: 8px;
 }
 
 .center-buttons {
-    padding: 50px;
+    padding: 20px;
     align-content: center;
     text-align: center;
 }
 
 .screen-lobby {
-    padding: 50px;
+    padding: 20px;
     align-content: center;
     text-align: center;
     display: none;
 }
 
 .player-lobby {
-    padding: 50px;
+    padding: 20px;
     align-content: center;
     text-align: center;
     display: none;
@@ -184,7 +191,6 @@ padding: 8px;
     -webkit-transform-origin: top;
     -moz-transform-origin: top;
     transform-origin: top;
-    margin-left: 25px;
     margin-right: 25px;
 }
 
@@ -210,16 +216,18 @@ padding: 8px;
     width: 25px;
     height: 25px;
     display: block;
-    background-color: #eb3b2e;
+    background-color: #15514A;
+    margin: 0 auto;
     position: relative;
     
 }
   
 .object-rope {
-    height: 200px;
+    height: 150px;
     width: 3px;
-    background-color: #eb3b2e;
+    background-color: #15514A;
     content:"";
     display: block;
+    margin-left: 45%;
     bottom: 54px;
 }

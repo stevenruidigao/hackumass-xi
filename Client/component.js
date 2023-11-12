@@ -72,49 +72,50 @@ class JackBox extends Component {
     }
 
     draw(ctx) {
+        ctx.fillStyle = 'rgb(200,200,200)';
         //snorlax head!
         if (this.turnsLeft == 0) {
-            ctx.strokeRect(x+30, y-40, 20, 80);
+            ctx.strokeRect(this.x+30, this.y-40, 20, 80);
             ctx.beginPath();
-            ctx.ellipse(x+40,y-40,25,20,0,0,Math.PI*1.15)
-            ctx.lineTo(x+14,y-60);
-            ctx.ellipse(x+40,y-40,25,20,0,Math.PI*1.3,Math.PI*1.7)
-            ctx.lineTo(x+66,y-60);
-            ctx.ellipse(x+40,y-40,25,20,0,Math.PI*1.85, Math.PI*2)
+            ctx.ellipse(this.x+40,this.y-40,25,20,0,0,Math.PI*1.15)
+            ctx.lineTo(this.x+14,this.y-60);
+            ctx.ellipse(this.x+40,this.y-40,25,20,0,Math.PI*1.3,Math.PI*1.7)
+            ctx.lineTo(this.x+66,this.y-60);
+            ctx.ellipse(this.x+40,this.y-40,25,20,0,Math.PI*1.85, Math.PI*2)
             ctx.fill();
             ctx.stroke();
 
             ctx.beginPath();
-            ctx.moveTo(x+25, y-40);
-            ctx.lineTo(x+35, y-40);
+            ctx.moveTo(this.x+25, this.y-40);
+            ctx.lineTo(this.x+35, this.y-40);
             ctx.stroke();
 
             ctx.beginPath();
-            ctx.moveTo(x+45, y-40);
-            ctx.lineTo(x+55, y-40);
+            ctx.moveTo(this.x+45, this.y-40);
+            ctx.lineTo(this.x+55, this.y-40);
             ctx.stroke();
 
             ctx.beginPath();
-            ctx.moveTo(x+30, y-30);
-            ctx.lineTo(x+50, y-30);
+            ctx.moveTo(this.x+30, this.y-30);
+            ctx.lineTo(this.x+50, this.y-30);
             ctx.stroke();
         }
         //box
-        ctx.strokeRect(x, y, 80, 80);
-        ctx.fillRect(x, y, 80, 80);
-        ctx.strokeRect(x-5, y+35, 5, 10);
+        ctx.strokeRect(this.x, this.y, 80, 80);
+        ctx.fillRect(this.x, this.y, 80, 80);
+        ctx.strokeRect(this.x-5, this.y+35, 5, 10);
         //handle
         if (this.turnsLeft %2 == 0) {
-            ctx.strokeRect(x-10, y+35, 5, 40);
-            ctx.strokeRect(x-15, y+65, 5, 10);
+            ctx.strokeRect(this.x-10, this.y+35, 5, 40);
+            ctx.strokeRect(this.x-15, this.y+65, 5, 10);
         } 
         else {
-            ctx.strokeRect(x-10, y+5, 5, 40);
-            ctx.strokeRect(x-15, y+5, 5, 10);
+            ctx.strokeRect(this.x-10, this.y+5, 5, 40);
+            ctx.strokeRect(this.x-15, this.y+5, 5, 10);
         }
         
         //star pattern
-        strokeStar(x+40,y+40,10,5,2)
+        strokeStar(this.x+40,this.y+40,10,5,2)
 
 
         function strokeStar(x, y, r, n, inset) {
@@ -147,9 +148,9 @@ class Pump extends Component {
     }
 
     draw(ctx) {
-        ctx.strokeRect(x+20, y-50, 10, 50);
-        ctx.strokeRect(x, y-58, 50, 8);
-        ctx.strokeRect(x, y, 50, 5);
+        ctx.strokeRect(this.x+20, this.y-50, 10, 50);
+        ctx.strokeRect(this.x, this.y-58, 50, 8);
+        ctx.strokeRect(this.x, this.y, 50, 5);
     }
 
 
@@ -166,14 +167,14 @@ class Popper extends Component {
 
     draw(ctx) {
         ctx.beginPath();
-        ctx.moveTo(x, y); 
-        ctx.lineTo(x-30, y-100); 
-        ctx.lineTo(x+30, y-100); 
+        ctx.moveTo(this.x, this.y); 
+        ctx.lineTo(this.x-30, this.y-100); 
+        ctx.lineTo(this.x+30, this.y-100); 
         ctx.closePath();
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.arc(x, y, 15, 0, Math.PI * 2, false); 
+        ctx.arc(this.x, this.y, 15, 0, Math.PI * 2, false); 
         ctx.fill();
         ctx.stroke(); 
     }

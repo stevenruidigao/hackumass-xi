@@ -57,7 +57,7 @@ io.on('connection', (socket) => {
     socket.on('joinGame', (code)=> {
         if (!code) return;
 
-        const lobby = l.lobbies[code.toUpperCase()];
+        const lobby = l.lobbies[code.toUpperCase().trim()];
         if (lobby !== undefined && lobby.addPlayer(socket.id)) {
             socket.join(lobby.id);
             l.sockets[socket.id] = lobby;
@@ -88,8 +88,7 @@ io.on('connection', (socket) => {
         let game;
         if (lobby !== undefined && (game = lobby.game)) {
             console.log(socket.id + " is moving " + movement);
-            game.players[socket.id].vx = - movement / 2.0;
-            //game.players[socket.id].vy = data[1];
+            game.players[socket.id].vx = - movement / 2.5;
         }
     });
 
