@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Device Orientation Detection</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
+    </head>
+    <body>
+        <h1>Test</h1>
+        <p id="motion-data">Motion Data</p>
+        <p id="orientation-data">Orientation Data</p>
+        <button id="motion-button" onclick="requestMotion">Allow Motion Data</button>
+        <button id="orientation-button" onclick="requestOrientation">Allow Orientation Data</button>
+        <button id="calibrate-button">Calibrate</button>
+        <p id="debug"></p>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="./quaternion.min.js"></script>
+        <canvas id="realTimeChart" width="400" height="200"></canvas>
+        <script>
+            var ctx = document.getElementById('realTimeChart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'x_accel',
+                        data: [],
+                        borderColor: 'rgba(255, 0, 0, 1)',
+                        borderWidth: 1,
+                        fill: false,
+                    }, {
+                        label: 'y_accel',
+                        data: [],
+                        borderColor: 'rgba(0, 255, 0, 1)',
+                        borderWidth: 1,
+                        fill: false,
+                    }, {
+                        label: 'z_accel',
+                        data: [],
+                        borderColor: 'rgba(0, 0, 255, 1)',
+                        borderWidth: 1,
+                        fill: false,
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: [{
+                            type: 'linear',
+                            position: 'bottom'
+                        }],
+                        y: [{
+                            type: 'linear',
+                            position: 'left'
+                        }]
+                    }
+                }
+            });
+
+            function addData(chart, label, dataset, data) {
+                chart.data.labels.push(label);
+                chart.data.datasets[dataset].data.push(data);
+                chart.update();
+            }
+
+            // setInterval(function() {
+            //     // Replace these lines with your actual data retrieval logic
+            //     var label = new Date().toLocaleTimeString();
+            //     var data = Math.random() * 100;
+
+            //     // Add the new data to the chart
+            //     addData(myChart, label, data);
+            // }, 1000);
+        </script>
+
+        <script>
+            // Check if the browser supports DeviceMotionEvent
+            if (window.DeviceMotionEvent) {
+                window.addEventListener('devicemotion', handleDeviceMotion, false);
+
+            } else {
+                document.getElementById('motion-data').innerText = 'Device motion not supported.';
+            }
+
+            // Check if the browser supports DeviceOrientationEvent
+            if (window.DeviceOrientationEvent) {
+                window.addEventListener('deviceorientation', handleDeviceOrientation, false);
+
+            } else {
+                document.getElementById('orientation-data').innerText = 'Device orientation not supported.';
+            }
+
+            let velocity = [0, 0, 0];
+            let orientation = [0, 0, 0];
+            let motion_points = 0;
+            const past_size = 60;
+            let past_acceleration = [Array(past_size), Array(past_size), Array(past_size)];
+            let past_orientation = [Array(past_size), Array(past_size), Array(past_size)];
+            let position = [0, 0, 0];
+            let last_time = -1;
+            let acceleration_points = 0;
+            let acceleration_offset = [0, 0, 0];
+            let orientation_offset = [0, 0, 0];
+            let calibrate_start = -1;
+
+            function calibrate() {
+                document.getElementById('debug').innerText += ' Calibrating... ';
+                calibrating = true;
+                calibrate_start = Date.now();
+                position = [0, 0, 0];
+                velocity = [0, 0, 0];
+                orientation = [0, 0, 0];
+            }
+
+            function handleDeviceMotion(event) {
+                let now = Date.now();
+                let time_diff = (last_time > 0) ? (event.timeStamp - last_time) / 1000 : 0.016;
+                // console.log(event);
+                
+                // Extracting acceleration values
+                let x = event.acceleration.x;
+                let y = event.acceleration.y;
+                let z = event.acceleration.z;
+
+                acceleration = [x, y, z];
+
+                if (calibrating === true && now - calibrate_start < 500) {
+                    acceleration_offset = acceleration_offset.map((axis, i) => axis + acceleration[i]);
+                    acceleration_points ++;
+                    document.getElementById('motion-data').innerText = '';
+
+                } else if (calibrating == true) {
+                    document.getElementById('debug').innerText += ' Finished calibrating. ';
+                    calibrating = false;
+                    calibrate_start = -1;
+
+                    if (acceleration_points > 0) {
+                        acceleration_offset = acceleration_offset.map(axis => axis / acceleration_points);
+                        acceleration_points = 0;
+                        document.getElementById('motion-data').innerText = '';
+                    }
+
+                } else {
+                    acceleration = acceleration.map((axis, i) => axis - acceleration_offset[i]);
+                    acceleration = acceleration.map(axis => Math.abs(axis) > 0.1 ? axis : 0);
+
+                    let deg = Math.PI / 180;
+                    let quaternion = Quaternion.fromEulerLogical(orientation[0] * deg, orientation[1] * deg, -orientation[2] * deg, 'ZXY');
+
+                    let absolute_acceleration = quaternion.conjugate().rotateVector(acceleration);
+                    // absolute_acceleration = absolute_acceleration.map(x => parseFloat(x.toFixed(1)));
+
+                    absolute_acceleration = past_acceleration.map((axis, i) => {
+                        axis.push(absolute_acceleration[i]);
+                        axis.shift();
+                        return axis;
+                    }).map(axis => axis.reduce((a, b) => a + b, 0) / axis.length);
+
+                    absolute_acceleration = absolute_acceleration.map(axis => parseFloat(axis.toFixed(2)));
+                    
+                    let position_diff = position.map((axis, i) => velocity[i] * time_diff + absolute_acceleration[i] * time_diff * time_diff / 2);
+                    let velocity_diff = velocity.map((axis, i) => absolute_acceleration[i] * time_diff);
+
+                    // position = position.map((axis, i) => axis + velocity[i] * time_diff + absolute_acceleration[i] * time_diff * time_diff / 2);
+                    // velocity = velocity.map((axis, i) => axis + absolute_acceleration[i] * time_diff);
+
+                    position = position.map((axis, i) => axis + (Math.abs(position_diff[i]) > 0.00001 ? position_diff[i] : 0));
+                    velocity = velocity.map((axis, i) => axis + (Math.abs(velocity_diff[i]) > 0.1 ? velocity_diff[i] : 0));
+
+                    document.getElementById('motion-data').innerText = '';
+
+                    if (motion_points % 60 === 0) {
+                        // document.getElementById('motion-data').innerText =
+                        //     `abs_accel: ${absolute_acceleration.join(', ')}\n` + 
+                        //     `pos_diff: ${position_diff}\n` +
+                        //     `vel_diff: ${velocity_diff}\n`;
+                        document.getElementById('motion-data').innerText =
+                            `abs_accel: ${absolute_acceleration.join(', ')}\n`;
+                    }
+
+                    if (motion_points % 60 === 0) {
+                        addData(chart, new Date().toLocaleTimeString(), 0, absolute_acceleration[0]);
+                        addData(chart, new Date().toLocaleTimeString(), 1, absolute_acceleration[1]);
+                        addData(chart, new Date().toLocaleTimeString(), 2, absolute_acceleration[2]);
+                    }
+                }
+
+                document.getElementById('motion-data').innerText +=
+                    'x_accel: ' + acceleration[0] + '\n' +
+                    'y_accel: ' + acceleration[1] + '\n' +
+                    'z_accel: ' + acceleration[2] + '\n' +
+                    'x_vel: ' + velocity[0] + '\n' +
+                    'y_vel: ' + velocity[1] + '\n' +
+                    'z_vel: ' + velocity[2] + '\n' +
+                    'x_pos: ' + position[0] + '\n' +
+                    'y_pos: ' + position[1] + '\n' +
+                    'z_pos: ' + position[2] + '\n' +
+                    `interval: ${event.interval} ms\n` +
+                    `time_diff: ${time_diff} s\n` +
+                    `timestamp: ${event.timeStamp} s\n` +
+                    `accel_offset: ${acceleration_offset.join(', ')}\n`;
+
+                motion_points ++;
+                last_time = event.timeStamp;
+            }
+
+            var orientationQuat = new THREE.Quaternion(); // No rotation initially
+            function resetOrientation() {
+
+            }
+
+            
+            var last_vector = new THREE.Vector3();
+            var norm_count = 0;
+            
+            function handleDeviceOrientation(event) {
+                console.log(event.timeStamp);
+                let deg = Math.PI / 180;
+
+                let alpha = event.alpha * deg;
+                let beta = event.beta * deg;
+                let gamma = event.gamma * deg;
+
+                let curr_vector = new THREE.Vector3(alpha, beta, gamma);
+
+                let rotationQuat = new THREE.Quaternion();
+                rotationQuat.setFromUnitVectors(last_vector, curr_vector);
+                orientationQuat.premultiply(rotationQuat);
+                
+                if (norm_count % 60 === 0) {
+                    orientationQuat.normalize();
+                }
+                norm_count++;
+
+                last_vector.set(alpha, beta, gamma)
+
+                orientation = past_orientation.map((axis, i) => {
+                    axis.push(orientation[i]);
+                    axis.shift();
+                    return axis;
+
+                }).map((axis, i) => axis.reduce((a, b) => a + b, 0) / axis.length);
+                
+                let euler_from_quat = new THREE.Euler()
+                euler_from_quat.setFromQuaternion(orientationQuat);
+                let euler_from_quat_arr = euler_from_quat.toArray();
+
+                let rad_to_deg = 180 / Math.PI;
+                
+                // Display the orientation data
+                document.getElementById('orientation-data').innerText =
+                    'alpha: ' + alpha * rad_to_deg + '\n' +
+                    'beta: ' + beta * rad_to_deg + '\n' +
+                    'gamma: ' + gamma * rad_to_deg + '\n' +
+                    'alpha_orientation: ' + orientation[0] + '\n' +
+                    'beta_orientation: ' + orientation[1] + '\n' +
+                    'gamma_orientation: ' + orientation[2] + '\n' +
+                    'alpha from quat: ' + (euler_from_quat_arr[0] * rad_to_deg) + '\n' +
+                    'beta from quat: ' + (euler_from_quat_arr[1] * rad_to_deg) + '\n' +
+                    'gamma from quat: ' + (euler_from_quat_arr[2] * rad_to_deg);
+            }
+
+            function requestMotion() {
+                document.getElementById('debug').innerText += ' Motion Click ';
+
+                if (window.DeviceMotionEvent !== undefined) {
+                    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                        DeviceMotionEvent.requestPermission().then(permissionState => {
+                            if (permissionState === 'granted') {
+                                window.addEventListener('devicemotion', handleDeviceMotion, true);
+                            }
+                        }).catch((e) => {document.getElementById('debug').innerText += 'Error Requesting Motion: ' + e.message + ' '});
+
+                    } else {
+                        console.log('No requestPermission function');
+                        window.addEventListener('devicemotion', handleDeviceMotion, true);
+                    }
+                }
+            }
+
+            function requestOrientation() {
+                document.getElementById('debug').innerText += ' Orientation Click ';
+
+                if (window.DeviceOrientationEvent !== undefined) {
+                    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                        DeviceOrientationEvent.requestPermission().then(permissionState => {
+                            if (permissionState === 'granted') {
+                                window.addEventListener('deviceorientation', handleDeviceOrientation, true);
+                            }
+                        }).catch((e) => {document.getElementById('debug').innerText += 'Error Requesting Orientation: ' + e.message + ' '});
+
+                    } else {
+                        console.log('No requestPermission function');
+                        window.addEventListener('deviceorientation', handleDeviceOrientation, true);
+                    }
+                }
+            }
+
+            document.getElementById('motion-button').onclick = requestMotion;
+            document.getElementById('orientation-button').onclick = requestOrientation;
+            document.getElementById('calibrate-button').onclick = calibrate;
+
+            calibrate();
+
+            // function handleDeviceMotion(event) {
+            //   // Extracting rotation values
+            //   let alpha = event.alpha; // Rotation around the z-axis (compass direction)
+            //   let beta = event.beta;   // Rotation around the x-axis (front-to-back)
+            //   let gamma = event.gamma; // Rotation around the y-axis (left-to-right)
+
+            //   // Display the orientation data
+            //   document.getElementById('orientation-data').innerText =
+            //     'Alpha: ' + alpha + '\n' +
+            //     'Beta: ' + beta + '\n' +
+            //     'Gamma: ' + gamma;
+            // }
+
+            // if (window.DeviceMotionEvent === undefined) {
+            //     // No accelerometer is present. Use buttons. 
+            //     alert('no accelerometer');
+            // }
+
+            // function accelerometerUpdate(e) {
+            //     let aX = event.accelerationIncludingGravity.x*1;
+            //     let aY = event.accelerationIncludingGravity.y*1;
+            //     let aZ = event.accelerationIncludingGravity.z*1;
+            //     // The following two lines are just to calculate a
+            //     // tilt. Not really needed. 
+            //     xPosition = Math.atan2(aY, aZ);
+            //     yPosition = Math.atan2(aX, aZ);
+            //     document.getElementById('debug').innerText=`aX: ${aX}, aY: ${aY}, aZ: ${aZ}, xPos: ${xPosition}, yPos: ${yPosition}`;
+            // }
+
+        </script>
+    </body>
+</html>
+            
