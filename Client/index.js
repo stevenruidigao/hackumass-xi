@@ -13,8 +13,8 @@ let ratio;
 socket.on("gameCreated", (data) => {
     console.log(data);
     type = "screen";
-    document.getElementById("LOG").innerText= "You are the screen!";
-    document.getElementById("id").innerText= data.id;
+    //document.getElementById("LOG").innerText= "You are the screen!";
+    document.getElementById("game-id").innerText= data.id;
     document.getElementById("players").innerText= data.playerSockets;
 });
 
@@ -38,7 +38,7 @@ socket.on("updateScreen", (game) => {
 /* Player */
 socket.on("joinedGame", (lobby) => {
     type = "player";
-    document.getElementById("LOG").innerText= "You are a player!";
+    //document.getElementById("LOG").innerText= "You are a player!";
     document.getElementById("id").innerText= lobby.id;
     document.getElementById("players").innerText= lobby.playerSockets.reduce((acc, e)=>acc + " " + e, "");
 });
@@ -64,23 +64,33 @@ function actPlayer(type) {
 socket.on("gameStart", (lobby) => {
     console.log(lobby);
     if (type === "screen") {
-        document.getElementById("LOG").innerText = "You are the screen! THE GAME HAS STARTED!!!";
+        //document.getElementById("LOG").innerText = "You are the screen! THE GAME HAS STARTED!!!";
         Object.values(lobby.game.players).forEach(p=>players.push(new Player(p.x, p.y, p.name)));
         lobby.game.components.forEach(c=>{
             components.push(makeComponent(c));
         });
         document.getElementById("LOG").innerText += " Game has started.";
+        document.getElementById("start-menu").style.display = "none";
+        //document.getElementById("LOG").innerText += " Game has started.";
     } else {
         // Do player stuff here
         document.getElementById("controls").style.display = "inLine";
     }
 });
 
+
+function showJoin() {
+    document.getElementsByClassName("center-buttons")[0].style.display="none";
+    document.getElementsByClassName("player-lobby")[0].style.display="inline";
+
+}
 function joinGame() {
-    console.log(document.getElementById("join").value)
-    socket.emit("joinGame", document.getElementById("join").value);
+    console.log(document.getElementById("join-code").value)
+    socket.emit("joinGame", document.getElementById("join-code").value);
 }
 function newGame() {
+    document.getElementsByClassName("center-buttons")[0].style.display="none";
+    document.getElementsByClassName("screen-lobby")[0].style.display="inline";
     socket.emit("newGame");
 }
 function startGame() {

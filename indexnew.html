@@ -22,12 +22,67 @@
         <button id="motion-button" onclick="requestMotion()">Allow Motion Data</button>
         <button id="orientation-button" onclick="requestOrientation()">Allow Orientation Data</button>
         <button id="reset-button" class="noselect" onclick="reset()">Reset</button>
-        <button id="record-button" class="noselect" onpointerdown="record()" onpointerup="stopRecording()" style="height: 50px">Record</button>
+        <button id="record-button" class="noselect" onpointerdown="record()" onpointerup="stopRecording()">Record</button>
         <p id="motion-data">Motion Data</p>
         <p id="orientation-data">Orientation Data</p>
         <p id="debug"></p>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="./qdollar.js"></script>
+        <!-- <canvas id="realTimeChart" width="400" height="200"></canvas> -->
+        <!-- <script>
+            // var ctx = document.getElementById('realTimeChart').getContext('2d');
+            // var chart = new Chart(ctx, {
+            //     type: 'line',
+            //     data: {
+            //         labels: [],
+            //         datasets: [{
+            //             label: 'x_accel',
+            //             data: [],
+            //             borderColor: 'rgba(255, 0, 0, 1)',
+            //             borderWidth: 1,
+            //             fill: false,
+            //         }, {
+            //             label: 'y_accel',
+            //             data: [],
+            //             borderColor: 'rgba(0, 255, 0, 1)',
+            //             borderWidth: 1,
+            //             fill: false,
+            //         }, {
+            //             label: 'z_accel',
+            //             data: [],
+            //             borderColor: 'rgba(0, 0, 255, 1)',
+            //             borderWidth: 1,
+            //             fill: false,
+            //         }]
+            //     },
+            //     options: {
+            //         scales: {
+            //             x: [{
+            //                 type: 'linear',
+            //                 position: 'bottom'
+            //             }],
+            //             y: [{
+            //                 type: 'linear',
+            //                 position: 'left'
+            //             }]
+            //         }
+            //     }
+            // });
+
+            // function addData(chart, label, dataset, data) {
+            //     chart.data.labels.push(label);
+            //     chart.data.datasets[dataset].data.push(data);
+            //     chart.update();
+            // }
+
+            // setInterval(function() {
+            //     // Replace these lines with your actual data retrieval logic
+            //     var label = new Date().toLocaleTimeString();
+            //     var data = Math.random() * 100;
+
+            //     // Add the new data to the chart
+            //     addData(myChart, label, data);
+            // }, 1000);
+        </script> -->
 
         <script>
             // Check if the browser supports DeviceMotionEvent
@@ -52,13 +107,12 @@
             var rotation_offset = new THREE.Quaternion(); // when you press calibrate, the rotation offset is reset to a new rotation matrix
             var curr_orientation = new THREE.Quaternion(); // the current rotation matrix
 
-            var point_array_2D = []; // element: [x, y, z]
-            const plane_normal = new THREE.Vector3(0, 1, 0);
+            var point_array_3D = []; // element: [x, y, z]
+            const plane_normal = new THREE.Vector3(0 , 1, 0);
             
             var last_time = -1;
             const past_size = 60;
             var last_accelerations = [Array(past_size), Array(past_size), Array(past_size)];
-            var last_shake = -1;
 
             var resetting = false;
             var reset_start = -1;
@@ -70,24 +124,11 @@
             var velocity = [0, 0, 0];
             var acceleration = [0, 0, 0];
             
-            function symbol(symbol) {
-                
-            }
-
-            function tilt(angle) {
-                console.log(angle);
-            }
-
-            function shake() {
-                alert('shake');
-            }
-
             function reset() {
                 // reset velocity and position
-                // rotation_offset.premultiply(curr_orientation.normalize().invert());
-                rotation_offset = curr_orientation.normalize().invert();
+                rotation_offset = curr_orientation.conjugate();
                 
-                point_array_2D = [];
+                point_array_3D = [];
                 position = [0, 0, 0];
                 velocity = [0, 0, 0];
                 acceleration = [0, 0, 0];
@@ -102,19 +143,10 @@
 
             function record() {
                 recording = true;
-                document.getElementById('debug').innerText += ' recording ';
             }
 
             function stopRecording() {
-                // document.getElementById('debug').innerText += '1 ';
                 recording = false;
-                let recognizer = new QDollarRecognizer();
-                // document.getElementById('debug').innerText += '2 ';
-                let result = recognizer.Recognize(point_array_2D);
-                document.getElementById('debug').innerText += ' recognized shape: ' + result.Name + ' ';
-                symbol(result.Name);
-
-                point_array_2D = [];
             }
 
             function cleanSensorInput(accel) {
@@ -131,7 +163,7 @@
                     else return x;
                 });
                 
-                // take the arithmetic mean of the last 60 values
+                // take the geometric mean of the last 60 values
                 accel = last_accelerations.map((axis, i) => {
                     axis.push(accel[i]);
                     axis.shift();
@@ -149,29 +181,9 @@
                                   event.acceleration.y,
                                   event.acceleration.z];
                                                    
-                clean_relative_accel = cleanSensorInput(relative_accel);
-
-                // for (let i = 0; i < 3; i++) {
-                //     let lowest = 15
-                //     let highest = -15
-                //     for (j in clean_relative_accel) {
-                //         lowest = Math.min(lowest, clean_relative_accel[j][i])
-                //         highest = Math.max(highest, clean_relative_accel[j][i])
-                //     }
-                //     if (lowest < -5 && highest > 5) shake();
-                // }
+                relative_accel = cleanSensorInput(relative_accel);
                 
-                // document.getElementById('debug').innerText += ' 46';
-                if (relative_accel.reduce((acc, cur, i) => {
-                    // document.getElementById('debug').innerText += ' 4444444444v' + (acc + ((cur - clean_relative_accel[i]) * (cur - clean_relative_accel[i]))) + ' ';
-                    return acc + (cur - clean_relative_accel[i]) * (cur - clean_relative_accel[i]);
-
-                }, 0) >= 1000 && event.timeStamp - last_shake > 1000) {
-                    last_shake = event.timeStamp;
-                    shake();
-                }
-                
-                acceleration = (new THREE.Vector3(...clean_relative_accel)).applyQuaternion(rotation_offset).toArray();
+                acceleration = (new THREE.Vector3(...relative_accel)).applyQuaternion(rotation_offset).toArray();
                 
                 if (resetting && now - reset_start < 500) {
                     
@@ -184,10 +196,7 @@
                     velocity = velocity.map((axis, i) => axis + acceleration[i] * time_diff);
 
                     if (!resetting && recording) {
-                        let point_3D = (new THREE.Vector3(...position)).projectOnPlane(plane_normal).multiplyScalar(10);
-                        point_array_2D.push((new Point(point_3D.x, point_3D.z, 1)));
-                        
-                        // document.getElementById('debug').innerText += ' point_2D: ' + (new Point(point_3D.x, point_3D.y, 1)).X + ', ' + (new Point(point_3D.x, point_3D.y, 1)).Y + ' ';
+                        point_array_3D.push((new THREE.Vector3(...position)).projectOnPlane(plane_normal));
                     }
                 }
 
@@ -200,8 +209,8 @@
                     'z_vel: ' + velocity[2] + '\n' +
                     'x_pos: ' + position[0] + '\n' +
                     'y_pos: ' + position[1] + '\n' +
-                    'z_pos: ' + position[2] + '\n';
-                    // `point_array_3D: ${point_array_2D}\n`
+                    'z_pos: ' + position[2] + '\n' +
+                    `point_array_3D: ${point_array_3D}\n`;
 
                 last_time = event.timeStamp;
             }
@@ -217,8 +226,6 @@
                 document.getElementById('orientation-data').innerText =
                     `rotation_offset: ${rotation_offset.toArray()}\n` +
                     `orientation: ${curr_orientation.toArray()}\n`;
-                
-                tilt(event.alpha);
             }
 
             function requestMotion() {
