@@ -11,6 +11,7 @@ class Game {
         this.players[lobby.playerSockets[0]] = new Player(200, 400, "p1");
         this.players[lobby.playerSockets[1]] = new Player(400, 200, "p2");
         this.components = [];
+        this.changes = []; // Components that have been changed
         this.statics = [];
     }
     /*getInput(socket, inputChain) {
@@ -27,8 +28,13 @@ class Game {
         obj1.addInteractions("horizontalLine");
         obj2.addInteractions("verticalLine, shake");
         obj3.addInteractions("circle");
+        this.changes.push(obj1);
+        this.changes.push(obj2);
+        this.changes.push(obj3);
 
-        const ground = new Component()
+        const ground = new Component(0, 800, "ground", "ground");
+        this.components.push(ground);
+        this.changes.push(ground);
     }
     action(interaction, player) {
         const x = player.x;
@@ -40,7 +46,8 @@ class Game {
     }
 }
 class Component {
-    constructor(x, y, img=null, name="") {
+    constructor(game, x, y, img=null, name="") {
+        this.game = game;
         this.x = x;
         this.y = y;
         this.img = img; // Name of a type of drawing
@@ -65,8 +72,8 @@ class Component {
 }
 
 class Interactable extends Component{
-    constructor(x, y, onComplete, img=null, name=null, reset=true) {
-        super(x, y, img, name);
+    constructor(game, x, y, onComplete, img=null, name=null, reset=true) {
+        super(game, x, y, img, name);
         this.interactions = [];
         this.interactionsLeft = [];
         this.complete = onComplete;
@@ -85,15 +92,17 @@ class Interactable extends Component{
         } else if (this.reset) {
             this.resetInteractions();
         }
+        this.game.changes.push(this);
     }
     resetInteractions() {
         this.interactionsLeft = this.interactions.map(x=>x);
+        this.game.changes.push(this);
     }
 }
 
 class TimedInteractable extends Interactable {
-    constructor(x, y, onComplete, img=null, name=null, reset=true, time=3) {
-        super(x, y, oncomplete, img, name, reset);
+    constructor(game, x, y, onComplete, img=null, name=null, reset=true, time=3) {
+        super(game, x, y, oncomplete, img, name, reset);
         // time is in seconds, this.time is in 0.02 seconds
         this.time = time * 50;
         this.active = false;
