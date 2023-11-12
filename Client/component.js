@@ -29,7 +29,7 @@ class Box extends Component {
 
 //Swipe Right to throw
 class Flag extends Component {
-    constructor(x, y, width, height, name='', filled=false) {
+    constructor(x, y, width, height, name, filled=false) {
         // x, y is upper left corner
         super(x, y, name);
         this.width = width;
@@ -41,6 +41,7 @@ class Flag extends Component {
         ctx.moveTo(this.x,this.y);
         ctx.lineTo(this.x,this.y - 100);
         ctx.stroke();
+        ctx.strokeText(this.name, this.x+40, this.y-60);
     }
 }
 

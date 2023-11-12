@@ -33,9 +33,9 @@ socket.on('updateScreen', (game) => {
             });
         });
         components = [];
-        game.components.forEach(c=> {
+        game.components.forEach((c, i)=> {
             if (c.type == "flag") {
-                components.push(new Flag(c.x,c.y,c.width,c.height));
+                components.push(new Flag(c.x,c.y,c.width,c.height, i+1));
             }
             else if (c.type == "jackbox") {
                 let j = new JackBox(c.x, c.y, c.width, c.height);

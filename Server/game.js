@@ -68,8 +68,8 @@ class Game {
         if (level === 1){
             // player 1 moves to the right, player 2 moves to the left
 
-            const flag1 = new Component(1900, this.floorHeight-200, 'flag');
-            const flag2 = new Component(100, this.floorHeight-200, 'flag');
+            const flag1 = new Component(1850, this.floorHeight-200, 'flag');
+            const flag2 = new Component(50, this.floorHeight-200, 'flag');
             
             this.components.push(flag1);
             this.components.push(flag2);
