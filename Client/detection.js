@@ -44,7 +44,7 @@
     var acceleration = [0, 0, 0];
 
     function symbol(symbol) {
-        alert(symbol);
+        //alert(symbol);
         socket.emit('action', symbol);
     }
 
@@ -91,7 +91,7 @@
     }
 
     function shake() {
-        alert('Shake');
+        //alert('Shake');
         socket.emit('action', 'shake');
     }
 
