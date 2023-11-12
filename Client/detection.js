@@ -41,17 +41,47 @@
     var acceleration = [0, 0, 0];
 
     function symbol(symbol) {
-        console.log(symbol);
+        alert(symbol);
+        socket.emit('action', symbol);
     }
 
+    var angle_sum = 0;
+    var angle_count = 0
+    var last_move = -1;
+
     function tilt(angle) {
-        let p = document.createElement('p');
-        p.innerText = ` tilt: ${angle} `;
-        document.body.appendChild(p);
+        // let p = document.createElement('p');
+        // p.innerText = ` tilt: ${angle} `;
+        // document.body.appendChild(p);
+
+        angle_sum += angle;
+        angle_count ++;
+
+        if (Date.now() - last_move > 100) {
+            let avg_angle = angle_sum / angle_count;
+
+            if (avg_angle < -20) {
+                socket.emit('move', 'right');
+                angle_sum = 0;
+                angle_count = 0;
+
+            } else if (avg_angle > 20) {
+                socket.emit('move', 'left');
+                angle_sum = 0;
+                angle_count = 0;
+
+            } else {
+                angle_sum = 0;
+                angle_count = 0;
+            }
+
+            last_move = Date.now();
+        }
     }
 
     function shake() {
-        alert('shake');
+        alert('Shake');
+        socket.emit('action', 'shake');
     }
 
     function reset() {
@@ -73,6 +103,7 @@
 
     function record() {
         recording = true;
+        alert('record');
     }
 
     function stopRecording() {
@@ -158,9 +189,19 @@
     function handleDeviceOrientation(event) {
         let current_euler = new THREE.Euler(); // [alpha, beta, gamma]
         const deg_to_rad = Math.PI / 180;
+        const rad_to_deg = 180 / Math.PI;
         current_euler.set(event.alpha * deg_to_rad, event.beta * deg_to_rad, event.gamma * deg_to_rad);
         curr_orientation.setFromEuler(current_euler);
-        tilt(event.alpha);
+        absolute_orientation = curr_orientation.multiply(rotation_offset);
+        absolute_euler = new THREE.Euler(); // [alpha, beta, gamma]
+        absolute_euler.setFromQuaternion(absolute_orientation);
+
+        tilt((absolute_euler.x * rad_to_deg > 180) ? absolute_euler.x * rad_to_deg  - 360 : absolute_euler.x * rad_to_deg);
+        console.log(absolute_euler.x);
+
+        var p = document.createElement('p');
+        p.innerText = absolute_euler.x * rad_to_deg + ' ' + absolute_euler.y * rad_to_deg + ' ' + absolute_euler.z * rad_to_deg;
+        document.body.appendChild(p);
     }
 
     function requestPermissions(callback) {
@@ -248,6 +289,7 @@
     requestMotion();
     requestOrientation();
     reset();
+
     window.requestPermissions = requestPermissions;
 
     // document.getElementById('reset-button').onclick = reset;

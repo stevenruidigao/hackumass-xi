@@ -46,6 +46,7 @@ socket.on('joinedGame', (lobby) => {
 
 socket.on('lobby-closed', (lobbyId) => {
     socket.emit('leave', lobbyId);
+    document.getElementById('player-button').style.display = 'none';
     document.getElementsByClassName('waiting-room')[0].style.display='none';
     document.getElementsByClassName('center-buttons')[0].style.display='inline';
     alert('Host has left the lobby.');
@@ -85,8 +86,14 @@ socket.on('gameStart', (lobby) => {
         
     } else {
         // Do player stuff here
-        document.getElementById('controls').style.display = 'inline';
+        document.getElementsByClassName('waiting-room')[0].style.display = 'none';
+        document.getElementById('player-button').style.display = 'inline';
     }
+});
+
+socket.on('newDisconnect', (length)=> {
+    document.getElementById('num-players').innerText = length;
+    document.getElementById('num-players-2').innerText = length;
 });
 
 function showReq() {

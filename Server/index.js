@@ -28,10 +28,12 @@ io.on('connection', (socket) => {
             if(socket.id === lobby.screenSocket) {
                 // Delete lobby, send signal to players, remove them from the room
                 io.to(lobby.id).emit("lobby-closed", lobby.id); // Host has left the lobby, players should leave the room
+                delete l.lobbies.game;
                 delete l.lobbies[lobby.id];
                 delete lobby; // Hopefully this won't cause problems
             } else {
                 lobby.playerSockets = lobby.playerSockets.filter(x=>x!==socket.id);
+                io.to(lobby.id).emit("newDisconnect", lobby.playerSockets.length);
             }
         }
         // Otherwise, nothing to do
@@ -65,7 +67,8 @@ io.on('connection', (socket) => {
 
     socket.on('start', ()=> {
         const lobby = l.sockets[socket.id];
-        if (lobby !== undefined && lobby.screenSocket === socket.id && lobby.playerSockets.length === 2 && lobby.game === undefined) {
+        if (lobby !== undefined && lobby.screenSocket === socket.id && lobby.playerSockets.length >= 1 && lobby.game === undefined) {//
+        //if (lobby !== undefined && lobby.screenSocket === socket.id && lobby.playerSockets.length === 2 && lobby.game === undefined) {
             lobby.game = new g.Game(lobby);
             io.to(lobby.id).emit('gameStart', lobby);
             lobby.game.changes = [];
@@ -74,18 +77,20 @@ io.on('connection', (socket) => {
     });
 
     // Game events
-    socket.on('move', (data) => {
-        // data is velocity in form [vx, vy]
+    socket.on('move', (movement) => {
+        // movement is either "left" or "right"
         const lobby = l.sockets[socket.id];
         let game;
         if (lobby !== undefined && (game = lobby.game)) {
-            game.players[socket.id].vx = data[0];
-            game.players[socket.id].vy = data[1];
+            console.log(socket.id + " is moving " + movement);
+            game.players[socket.id].vx = (movement === "left" ? -10 : 10);
+            //game.players[socket.id].vy = data[1];
         }
     });
 
     socket.on('action', (data) => {
         // Action is a string of the action
+        console.log(socket.id + " has performed action: " + data);
         const lobby = l.sockets[socket.id];
         let game;
         if (lobby !== undefined && (game = lobby.game)) {

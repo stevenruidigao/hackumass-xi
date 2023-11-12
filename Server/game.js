@@ -5,11 +5,15 @@ const tickables = [];
 
 const PLAYER_REACH = 50;
 
+
+const levels = [];
+
+
 class Game {
     constructor(lobby) {
         this.players = {};
         this.players[lobby.playerSockets[0]] = new Player(200, 400, 'p1');
-        this.players[lobby.playerSockets[1]] = new Player(400, 200, 'p2');
+        this.players[lobby.playerSockets[1]] = new Player(600, 400, 'p2');
         this.components = [];
         this.changes = []; // Components that have been changed
         this.statics = [];
@@ -49,12 +53,11 @@ class Component {
         this.game = game;
         this.x = x;
         this.y = y;
+        this.width = 50;
+        this.height = 50;
         this.img = img; // Name of a type of drawing
         this.name = name; // Name/id of the Interactable
         this.isInteractable = false;
-
-        //bounding box
-        this.corners = [];
     }
 
     collide(p) {
@@ -138,7 +141,7 @@ class Player {
         this.x += this.vx;
         this.y += this.vy;
         this.vx *= 0.95; // Fiddle with the number as necessary
-        if (Math.abs(this.vx) < 0.1) this.vx = 0;
+        if (Math.abs(this.vx) < 1) this.vx = 0;
         // TODO: Implement gravity for vy
     }
 

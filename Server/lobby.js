@@ -8,6 +8,7 @@ class Lobby {
         this.id = this.generateID();
         lobbies[this.id] = this;
         this.game = undefined;
+        //console.log("Current number of lobbies: " );//
     }
 
     // Generate an unused lobbyID (four random capital letters)
