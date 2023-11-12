@@ -88,7 +88,7 @@ io.on('connection', (socket) => {
         let game;
         if (lobby !== undefined && (game = lobby.game)) {
             console.log(socket.id + " is moving " + movement);
-            game.players[socket.id].vx = - movement / 4;
+            game.players[socket.id].vx = - movement / 4.5;//movement / 6;
         }
     });
 

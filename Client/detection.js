@@ -18,6 +18,9 @@
     // alpha is 0 to 360
     // beta is -180 to 180
     // gamma is -90 to 90
+    var initial_orientation = new THREE.Quaternion();
+    var init_once = false;
+
     var rotation_offset = new THREE.Quaternion(); // when you press calibrate, the rotation offset is reset to a new rotation matrix
     var curr_orientation = new THREE.Quaternion(); // the current rotation matrix
 
@@ -59,20 +62,24 @@
 
         if (Date.now() - last_move > 100) {
             let avg_angle = angle_sum / angle_count;
-            let scale = (Math.abs(avg_angle) - 10) / 70;
+            //let scale = (Math.abs(avg_angle) - 10) / 60;
 
             if (recording) {
                 socket.emit('move', 0);
                 angle_sum = 0;
                 angle_count = 0;
 
-            } else if (avg_angle < -10) {
-                socket.emit('move', Math.max(-80, avg_angle * scale));
+            } else if (avg_angle < -20) {
+                //socket.emit('move', Math.max(-80, avg_angle * scale));
+                socket.emit('move', avg_angle);
+                console.log("emitting angle: " + avg_angle);
                 angle_sum = 0;
                 angle_count = 0;
 
-            } else if (avg_angle > 10) {
-                socket.emit('move', Math.min(80, avg_angle * scale));
+            } else if (avg_angle > 20) {
+                //socket.emit('move', Math.min(80, avg_angle * scale));
+                socket.emit('move', avg_angle)
+                console.log("emitting angle: " + avg_angle);
                 angle_sum = 0;
                 angle_count = 0;
 
@@ -198,10 +205,14 @@
         const deg_to_rad = Math.PI / 180;
         const rad_to_deg = 180 / Math.PI;
         current_euler.set(event.alpha * deg_to_rad, event.beta * deg_to_rad, event.gamma * deg_to_rad);
+        if (!init_once) {
+            initial_orientation.setFromEuler(current_euler)
+            init_once = true;
+        }
         curr_orientation.setFromEuler(current_euler);
         absolute_orientation = curr_orientation.multiply(rotation_offset);
         absolute_euler = new THREE.Euler(); // [alpha, beta, gamma]
-        absolute_euler.setFromQuaternion(absolute_orientation);
+        absolute_euler.setFromQuaternion(initial_orientation.multiply(rotation_offset));
 
         // tilt((event.alpha > 180) ? event.alpha  - 360 : event.alpha);
         tilt(absolute_euler.x * rad_to_deg);

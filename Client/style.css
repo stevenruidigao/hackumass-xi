@@ -14,7 +14,7 @@ body {
     background-image: url(bg.jpg);
 }
 
-#canvas {
+canvas {
     position:absolute;
     top: 0px;
     left: 0px;

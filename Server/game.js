@@ -45,12 +45,11 @@ class Game {
             if (this.components[0].isDone) {
                 this.level++;
                 this.makeLevel(5);
+                //exit here, trigger confetti
             }
         }
         else if (this.level === 5) {
-            if (this.components[0].isDone){
-                // exit the game
-            }
+            console.log("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
         }
         
         this.components.forEach(c => {

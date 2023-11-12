@@ -52,10 +52,13 @@ socket.on('updateScreen', (game) => {
             }
             else if (c.type == "popper") {
                 components.push(new Popper(c.x, c.y, c.width, c.height))
-
+                if (c.isDone) 
+                    confetti({
+                        particleCount: 300,
+                        spread: 180
+                    });
             }
         });
-        console.log(game.components)
     }
 });
 
@@ -184,7 +187,6 @@ setInterval(() => {
         p.updateVerticies();
         p.draw(ctx);
     })
-    console.log("comp arr", components)
     components.forEach(c => {
         c.draw(ctx);
     });
