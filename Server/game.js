@@ -1,5 +1,5 @@
 
-const lineLineCross = require("./collision.js");
+const lineLineCross = require('./collision.js');
 const players = [];
 const tickables = [];
 
@@ -8,36 +8,35 @@ const PLAYER_REACH = 50;
 class Game {
     constructor(lobby) {
         this.players = {};
-        this.players[lobby.playerSockets[0]] = new Player(200, 400, "p1");
-        this.players[lobby.playerSockets[1]] = new Player(400, 200, "p2");
+        this.players[lobby.playerSockets[0]] = new Player(200, 400, 'p1');
+        this.players[lobby.playerSockets[1]] = new Player(400, 200, 'p2');
         this.components = [];
         this.changes = []; // Components that have been changed
         this.statics = [];
     }
-    /*getInput(socket, inputChain) {
-        
-    }*/
     makeLevel() {
         // For now, we have one hard-coded level
-        const obj1 = new Interactable(5, 5, ()=>console.log("success"), "obj1");
-        const obj2 = new TimedInteractable(100, 80, ()=>console.log("success"), "obj2");
-        const obj3 = new Interactable(200, 400, ()=>console.log("success"), "obj3");
+        const obj1 = new Interactable(5, 5, ()=>console.log('success'), 'obj1');
+        const obj2 = new TimedInteractable(100, 80, ()=>console.log('success'), 'obj2');
+        const obj3 = new Interactable(200, 400, ()=>console.log('success'), 'obj3');
         this.components.push(obj1);
         this.components.push(obj2);
         this.components.push(obj3);
-        obj1.addInteractions("horizontalLine");
-        obj2.addInteractions("verticalLine, shake");
-        obj3.addInteractions("circle");
+        obj1.addInteractions('horizontalLine');
+        obj2.addInteractions('verticalLine, shake');
+        obj3.addInteractions('circle');
         this.changes.push(obj1);
         this.changes.push(obj2);
         this.changes.push(obj3);
 
-        const ground = new Component(0, 800, "ground", "ground");
+        const ground = new Component(0, 800, 'ground', 'ground');
         this.components.push(ground);
         this.changes.push(ground);
     }
+
     action(interaction, player) {
         const x = player.x;
+
         this.components.forEach(c=> {
             if (Math.abs(c.x - x) <= PLAYER_REACH) {
                 c.dointeraction(interaction);
@@ -46,7 +45,7 @@ class Game {
     }
 }
 class Component {
-    constructor(game, x, y, img=null, name="") {
+    constructor(game, x, y, img=null, name='') {
         this.game = game;
         this.x = x;
         this.y = y;
@@ -57,6 +56,7 @@ class Component {
         //bounding box
         this.corners = [];
     }
+
     collide(p) {
         //check if any boundary line of the two objects cross
         let corners = [[p.x-30, p.y-30],[p.x+30, p.y-30],[p.x-30, p.y+200],[p.x-30, p.y+200]];
@@ -80,20 +80,26 @@ class Interactable extends Component{
         this.isInteractable = true;
         this.reset = reset;
     }
+
     addInteractions(...actions) {
         actions.forEach(x=>this.interactions.push(x));
     }
+
     doInteraction(action) {
         if (action === this.interactionsLeft[0]) {
             this.interactionsLeft.shift();
+
             if (this.interactionsLeft.length === 0) {
                 this.complete();
             }
+
         } else if (this.reset) {
             this.resetInteractions();
         }
+
         this.game.changes.push(this);
     }
+
     resetInteractions() {
         this.interactionsLeft = this.interactions.map(x=>x);
         this.game.changes.push(this);
@@ -109,6 +115,7 @@ class TimedInteractable extends Interactable {
         this.prevAction = 0;
         tickables.push(this);
     }
+
     tick() {
         if (this.active && ++this.prevAction > this.time) {
             this.active = false;
@@ -118,7 +125,7 @@ class TimedInteractable extends Interactable {
 }
 
 class Player {
-    constructor(x, y, name="") {
+    constructor(x, y, name='') {
         players.push(this);
         this.name = name;
         this.x = x;
@@ -126,19 +133,22 @@ class Player {
         this.vx = 0;
         this.vy = 0;
     }
+
     update(game) {
         this.x += this.vx;
         this.y += this.vy;
         this.vx *= 0.95; // Fiddle with the number as necessary
+        if (Math.abs(this.vx) < 0.1) this.vx = 0;
         // TODO: Implement gravity for vy
     }
+
     checkCollisions(game) {
         game.components.forEach((c) => {
             if (c.collide(this)){
                 this.x -= this.vx;
                 this.vx = 0;
             }
-        })
+        });
     }
 }
 

@@ -1,13 +1,12 @@
-const http = require("http");
-const express = require("express");
-const socketio = require("socket.io");
-const path = require("node:path");
-const l = require("./lobby.js");
-const g = require("./game.js");
+const http = require('http');
+const express = require('express');
+const socketio = require('socket.io');
+const path = require('node:path');
+const l = require('./lobby.js');
+const g = require('./game.js');
 
-
-const clientPath = path.join(__dirname, "../Client");
-console.log("Serving static from " + clientPath);
+const clientPath = path.join(__dirname, '../Client');
+console.log('Serving static from ' + clientPath);
 
 const app = express();
 app.use(express.static(clientPath));
@@ -15,39 +14,67 @@ app.use(express.static(clientPath));
 const server = http.createServer(app);
 const io = socketio(server);
 
-io.on("connection", (socket) => {
-    socket.emit("message","You are connected!"); // send a msg to client
-    console.log("new connection: " + socket.id);//
+io.on('connection', (socket) => {
+    socket.emit('message','You are connected!'); // send a msg to client
+    console.log('new connection: ' + socket.id); //
+
+    // Handle Disconnect
+    socket.on('disconnect', ()=> {
+        console.log(socket.id + " disconnected.");
+        const lobby = l.sockets[socket.id];
+        if (lobby) {
+            l.sockets[socket.id] = undefined;
+            // If server owner, close the lobby
+            if(socket.id === lobby.screenSocket) {
+                // Delete lobby, send signal to players, remove them from the room
+                io.to(lobby.id).emit("lobby-closed", lobby.id); // Host has left the lobby, players should leave the room
+                delete l.lobbies[lobby.id];
+                delete lobby; // Hopefully this won't cause problems
+            } else {
+                lobby.playerSockets = lobby.playerSockets.filter(x=>x!==socket.id);
+            }
+        }
+        // Otherwise, nothing to do
+    });
+    
+    socket.on('leave', (room)=> {
+        console.log(socket.id + " has left room " + room);//
+        socket.leave(room);
+    });
+
     // Lobby Events
-    socket.on("newGame",() => {
+    socket.on('newGame', () => {
         const lobby = new l.Lobby();
         lobby.addScreen(socket.id);
         socket.join(lobby.id);
         l.sockets[socket.id] = lobby;
-        socket.emit("gameCreated", lobby);
-        console.log(socket.id + " created game: " + lobby.id);//
+        socket.emit('gameCreated', lobby);
+        console.log(socket.id + ' created game: ' + lobby.id);//
     });
-    socket.on("joinGame", (code)=> {
-        const lobby = l.lobbies[code];
+
+    socket.on('joinGame', (code)=> {
+        const lobby = l.lobbies[code.toUpperCase()];
         if (lobby !== undefined && lobby.addPlayer(socket.id)) {
             socket.join(lobby.id);
             l.sockets[socket.id] = lobby;
-            socket.emit("joinedGame", lobby);
-            socket.to(lobby.id).emit("newJoin", socket.id);
-            console.log(socket.id + " joined game: " + lobby.id);//
+            socket.emit('joinedGame', lobby);
+            socket.to(lobby.id).emit('newJoin', lobby.playerSockets.length);
+            console.log(socket.id + ' joined game: ' + lobby.id);//
         }
     });
-    socket.on("start", ()=> {
+
+    socket.on('start', ()=> {
         const lobby = l.sockets[socket.id];
         if (lobby !== undefined && lobby.screenSocket === socket.id && lobby.playerSockets.length === 2 && lobby.game === undefined) {
             lobby.game = new g.Game(lobby);
-            io.to(lobby.id).emit("gameStart", lobby);
+            io.to(lobby.id).emit('gameStart', lobby);
             lobby.game.changes = [];
-            console.log(socket.id + " started game: " + lobby.id); //
+            console.log(socket.id + ' started game: ' + lobby.id); //
         }
     });
+
     // Game events
-    socket.on("move", (data) => {
+    socket.on('move', (data) => {
         // data is velocity in form [vx, vy]
         const lobby = l.sockets[socket.id];
         let game;
@@ -56,7 +83,8 @@ io.on("connection", (socket) => {
             game.players[socket.id].vy = data[1];
         }
     });
-    socket.on("action", (data) => {
+
+    socket.on('action', (data) => {
         // Action is a string of the action
         const lobby = l.sockets[socket.id];
         let game;
@@ -64,28 +92,28 @@ io.on("connection", (socket) => {
             game.action(data, game.players[socket.id]);
         }
     });
-    
 })
 
 setInterval(()=> {
     Object.values(g.players).forEach(p=> {
         p.update();
     });
+
     Object.values(l.lobbies).forEach(x=>{
         if (x.game) {
-            io.to(x.id).emit("updateScreen", x.game)
+            io.to(x.id).emit('updateScreen', x.game)
             x.game.changes = [];
         }
     });
 }, 20);
 
 //server stuff
-server.on("error",(e)=>{
-    console.log("Server error: "+ e);
+server.on('error',(e)=>{
+    console.log('Server error: '+ e);
     server.close();
 });
 
 server.listen(3000, ()=>{
-    console.log("HI, starting server...");
+    console.log('HI, starting server...');
     console.log('uwu');
 });

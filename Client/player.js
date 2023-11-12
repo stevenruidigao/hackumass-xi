@@ -2,7 +2,7 @@ const armLength = 50;
 const legLength = 90;
 
 class Player extends Component{
-    constructor(x, y, name="") {
+    constructor(x, y, name='') {
         super(x, y, name);
         this.vx = 0;
         this.vy = 0;
@@ -19,6 +19,7 @@ class Player extends Component{
             footL:{x:0, y:0},
             footR:{x:0, y:0}
         }
+
         this.ang = {
             handL:1,
             handR:-1,
@@ -27,6 +28,7 @@ class Player extends Component{
             footL:0,
             footR:0
         }
+
         this.angVel = {
             handL:0,
             handR:0,
@@ -35,6 +37,7 @@ class Player extends Component{
             footL:0,
             footR:0
         }
+        
         this.angAcc = {
             handL:0,
             handR:0,
@@ -44,6 +47,7 @@ class Player extends Component{
             footR:0
         }
     }
+
     update(player) {
         this.x = player.x;
         this.y = player.y;
@@ -57,9 +61,10 @@ class Player extends Component{
         //ragdolling !!!
         //arms
         if (this.vx!=0) {
-            this.ang.handL += 0.05*Math.atan((this.vtx.handL.y-this.vtx.elbowL.y)/this.vx);
-            this.ang.handR += 0.05*Math.atan((this.vtx.handR.y-this.vtx.elbowR.y)/this.vx);
+            this.ang.handL += 0.05*(Math.atan((this.vtx.handL.y-this.vtx.elbowL.y)/this.vx)-this.ang.handL);
+            this.ang.handR += 0.05*(Math.atan((this.vtx.handR.y-this.vtx.elbowR.y)/this.vx)-this.ang.handR);
         }
+
         this.angAcc.handL = -0.01*Math.sin(this.ang.handL) - 0.05*Math.sin(this.angVel.handL);
         this.angVel.handL += this.angAcc.handL;
         this.ang.handL += this.angVel.handL;
@@ -77,6 +82,7 @@ class Player extends Component{
             this.ang.legL += 0.05*Math.atan((this.vtx.legL.y)/this.vx);
             this.ang.legR += 0.05*Math.atan((this.vtx.legR.y)/this.vx);
         }
+
         this.angAcc.legL = -0.01*Math.sin(this.ang.legL) - 0.05*Math.sin(this.angVel.legL);
         this.angVel.legL += this.angAcc.legL;
         this.ang.legL += this.angVel.legL;
@@ -88,26 +94,11 @@ class Player extends Component{
         this.ang.legR += this.angVel.legR;
         this.vtx.legR.x = legLength*Math.cos(this.ang.legR + Math.PI/2);
         this.vtx.legR.y = legLength*Math.sin(this.ang.legL + Math.PI/2);
-
-        //more legs
-        if (this.vx!=0) {
-            this.ang.footL += 0.05*Math.atan((this.vtx.footL.y-this.vtx.legL.y)/this.vx);
-            this.ang.footR += 0.05*Math.atan((this.vtx.footR.y-this.vtx.legR.y)/this.vx);
-        }
-        this.angAcc.footL = -0.01*Math.sin(this.ang.footL) - 0.05*Math.sin(this.angVel.footL);
-        this.angVel.footL += this.angAcc.footL;
-        this.ang.footL += this.angVel.footL;
-        this.vtx.footL.x = armLength*Math.cos(this.ang.footL + Math.PI/2);
-        this.vtx.footL.y = armLength*Math.sin(this.ang.footL + Math.PI/2);
-
-        this.angAcc.f = 0.01*Math.sin(this.ang.footR) - 0.05*Math.sin(this.angVel.footR);
-        this.angVel.footR += this.angAcc.footR;
-        this.ang.footR += this.angVel.footR;
-        this.vtx.footR.x = legLength*Math.cos(this.ang.footR + Math.PI/2);
-        this.vtx.footR.y = legLength*Math.sin(this.ang.footR + Math.PI/2);
     }
+
     draw(ctx) {
-        ctx.fillStyle = "rgb(200,200,200)"
+        ctx.fillStyle = 'rgb(200,200,200)';
+
         //body
         ctx.beginPath();
         ctx.moveTo(this.x-15, this.y+40);
@@ -123,31 +114,33 @@ class Player extends Component{
         ctx.lineTo(this.x+this.vtx.elbowL.x -50,this.y+this.vtx.elbowL.y +50);//
         ctx.lineTo(this.x+this.vtx.handL.x -50,this.y+this.vtx.handL.y +50);//
         ctx.stroke();
+
         //R arm
         ctx.beginPath();
         ctx.moveTo(this.x+15, this.y+40);
         ctx.lineTo(this.x+this.vtx.elbowR.x +50,this.y+this.vtx.elbowR.y +50);//
         ctx.lineTo(this.x+this.vtx.handR.x +50,this.y+this.vtx.handR.y +50);//
         ctx.stroke();
+
         //L leg
         ctx.beginPath();
         ctx.moveTo(this.x-25, this.y+140);
         ctx.lineTo(this.x+this.vtx.legL.x-25,this.y+this.vtx.legL.y+140);//
-        ctx.lineTo(this.x+this.vtx.footL.x-25, this.y+this.vtx.footL.y+this.vtx.legL.y+140);
         ctx.stroke();
+
         //R leg
         ctx.beginPath();
         ctx.moveTo(this.x+25, this.y+140);
         ctx.lineTo(this.x+this.vtx.legR.x+25,this.y+this.vtx.legR.y+140);//
-        ctx.lineTo(this.x+this.vtx.footR.x-25, this.y+this.vtx.footR.y+this.vtx.legR.y+140);
         ctx.stroke();
+
+        
         //head
         ctx.beginPath();
         ctx.ellipse(this.x+this.vtx.head.x, this.y+this.vtx.head.y, 50, 50, 0, 0, 2 * Math.PI);//
         ctx.fill();
         ctx.stroke();
     
-
         //nose
         ctx.beginPath();
         ctx.moveTo(this.x+this.vtx.head.x+10, this.y+this.vtx.head.y+10);
@@ -156,15 +149,11 @@ class Player extends Component{
         ctx.fill();
         ctx.stroke();
 
-
         //eyes
         ctx.beginPath();
         ctx.ellipse(this.x+this.vtx.head.x-15, this.y+this.vtx.head.y-10, 5, 5, 0, 0, 2 * Math.PI);//
         ctx.ellipse(this.x+this.vtx.head.x+20, this.y+this.vtx.head.y-10, 5, 5, 0, 0, 2 * Math.PI);//
-        ctx.fillStyle = "rgb(0,0,0)";
+        ctx.fillStyle = 'rgb(0,0,0)';
         ctx.fill();
-
     }
 }
-
-//module.exports = {Player, allPlayers}
