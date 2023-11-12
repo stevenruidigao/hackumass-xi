@@ -8,13 +8,12 @@ class Lobby {
         this.id = this.generateID();
         lobbies[this.id] = this;
         this.game = undefined;
-        //console.log("Current number of lobbies: " );//
+        console.log("Current number of lobbies: " + Object.keys(lobbies).length);//
     }
 
     // Generate an unused lobbyID (four random capital letters)
     generateID() {
         const genLetter = () => (Math.floor(Math.random() * 26) + 10).toString(36);
-        //const genLetter = () => (Math.floor(Math.random() * 36) + 0).toString(36);
 
         const mkString = (n) => {
             let str = '';

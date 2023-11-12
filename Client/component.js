@@ -7,10 +7,10 @@ class Component {
         this.name = name;
     }
     
-    draw(ctx) {
-        // Draw
-        console.log('Draw called on Component object. This should not happen.');
-    }
+    // draw(ctx) {
+    //     // Draw
+    //     console.log('Draw called on Component object. This should not happen.');
+    // }
 }
 
 class Box extends Component {
@@ -28,6 +28,23 @@ class Box extends Component {
 }
 
 //Swipe Right to throw
+class Flag extends Component {
+    constructor(x, y, width, height, name='', filled=false) {
+        // x, y is upper left corner
+        super(x, y, name);
+        this.width = width;
+        this.height = height;
+    }
+    draw(ctx) {
+        console.log("TESTING")
+        ctx.strokeRect(this.x, this.y-100, 100, 50);
+        ctx.beginPath();
+        ctx.moveTo(this.x,this.y);
+        ctx.lineTo(this.x,this.y - 100);
+        ctx.stroke();
+    }
+}
+
 class Ball extends Component {
     constructor(x, y, width, height, name='', filled=false) {
         // x, y is upper left corner

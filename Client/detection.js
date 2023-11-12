@@ -59,14 +59,20 @@
 
         if (Date.now() - last_move > 100) {
             let avg_angle = angle_sum / angle_count;
+            let scale = (Math.abs(avg_angle) - 20) / 30;
 
-            if (avg_angle < -20) {
-                socket.emit('move', 'right');
+            if (recording) {
+                socket.emit('move', 0);
+                angle_sum = 0;
+                angle_count = 0;
+
+            } else if (avg_angle < -20) {
+                socket.emit('move', Math.max(-50, avg_angle * scale));
                 angle_sum = 0;
                 angle_count = 0;
 
             } else if (avg_angle > 20) {
-                socket.emit('move', 'left');
+                socket.emit('move', Math.min(50, avg_angle * scale));
                 angle_sum = 0;
                 angle_count = 0;
 
@@ -95,15 +101,16 @@
         
         last_accelerations = [Array(past_size), Array(past_size), Array(past_size)];
 
-        curr_orientation = new THREE.Quaternion();
+        // curr_orientation = new THREE.Quaternion();
 
         resetting = true;
         reset_start = Date.now();
     }
 
     function record() {
+        reset();
         recording = true;
-        alert('record');
+        // alert('record');
     }
 
     function stopRecording() {
@@ -159,7 +166,7 @@
         
         acceleration = (new THREE.Vector3(...clean_relative_accel)).applyQuaternion(rotation_offset).toArray();
         
-        if (resetting && now - reset_start < 500) {
+        if (resetting && now - reset_start < 250) {
             
         } else if (resetting) {
             resetting = false;
@@ -196,7 +203,8 @@
         absolute_euler = new THREE.Euler(); // [alpha, beta, gamma]
         absolute_euler.setFromQuaternion(absolute_orientation);
 
-        tilt((absolute_euler.x * rad_to_deg > 180) ? absolute_euler.x * rad_to_deg  - 360 : absolute_euler.x * rad_to_deg);
+        // tilt((event.alpha > 180) ? event.alpha  - 360 : event.alpha);
+        tilt(absolute_euler.x * rad_to_deg);
         console.log(absolute_euler.x);
 
         var p = document.createElement('p');
@@ -297,4 +305,7 @@
     // document.getElementById('record-button').onpointerup = stopRecording;
     document.getElementById('player-button').onpointerdown = record;
     document.getElementById('player-button').onpointerup = stopRecording;
+    // document.body.onpointerdown = record;
+    // document.body.onpointerup = stopRecording;
+    // alert(document.getElementById('player-button'));
 })();

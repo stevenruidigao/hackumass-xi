@@ -55,6 +55,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('joinGame', (code)=> {
+        if (!code) return;
+
         const lobby = l.lobbies[code.toUpperCase()];
         if (lobby !== undefined && lobby.addPlayer(socket.id)) {
             socket.join(lobby.id);
@@ -65,11 +67,14 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('start', ()=> {
+    socket.on('start', (data)=> {
+        if (!data) return;
+        
+        // data: {height: window.innerHeight, ratio: ratio}
         const lobby = l.sockets[socket.id];
         if (lobby !== undefined && lobby.screenSocket === socket.id && lobby.playerSockets.length >= 1 && lobby.game === undefined) {//
         //if (lobby !== undefined && lobby.screenSocket === socket.id && lobby.playerSockets.length === 2 && lobby.game === undefined) {
-            lobby.game = new g.Game(lobby);
+            lobby.game = new g.Game(lobby, data.height/data.ratio, data.ratio);
             io.to(lobby.id).emit('gameStart', lobby);
             lobby.game.changes = [];
             console.log(socket.id + ' started game: ' + lobby.id); //
@@ -78,12 +83,12 @@ io.on('connection', (socket) => {
 
     // Game events
     socket.on('move', (movement) => {
-        // movement is either "left" or "right"
+        // movement is a number between -50 and 50
         const lobby = l.sockets[socket.id];
         let game;
         if (lobby !== undefined && (game = lobby.game)) {
             console.log(socket.id + " is moving " + movement);
-            game.players[socket.id].vx = (movement === "left" ? -10 : 10);
+            game.players[socket.id].vx = - movement / 2.0;
             //game.players[socket.id].vy = data[1];
         }
     });
@@ -101,15 +106,20 @@ io.on('connection', (socket) => {
 
 setInterval(()=> {
     Object.values(g.players).forEach(p=> {
-        p.update();
+        const lobby = l.sockets[p.name];
+        if (lobby !== undefined && lobby.game !== undefined) { // This should not happen in 2 player games
+            p.update(lobby.game);
+        }
+        
     });
 
     Object.values(l.lobbies).forEach(x=>{
         if (x.game) {
             io.to(x.id).emit('updateScreen', x.game)
-            x.game.changes = [];
+            x.game.update();
         }
     });
+
 }, 20);
 
 //server stuff

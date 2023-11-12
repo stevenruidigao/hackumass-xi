@@ -146,11 +146,80 @@ padding: 8px;
     float: left;
 }
 
-.player-button {
+#player-button {
     display: none;
     position:absolute;
     top: 0px;
     left: 0px;
     width: 100vw;
     height: 100vh;
+}
+
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Old versions of Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
+}
+
+@keyframes sway  {
+    0% { transform: rotate(8deg); }
+    50% { transform: rotate(-8deg); }
+    100% { transform: rotate(8deg); }
+}
+
+.object-container {
+    display: flex;
+    justify-content: center; /* Horizontal centering */
+    align-items: center; /* Vertical centering */
+    width: 100%;
+}
+
+.object1 {
+    animation: sway 2.4s infinite;
+    animation-timing-function: ease-in-out;
+    -webkit-transform-origin: top;
+    -moz-transform-origin: top;
+    transform-origin: top;
+    margin-left: 25px;
+    margin-right: 25px;
+}
+
+.object2 {
+    animation: sway 2s infinite;
+    animation-timing-function: ease-in-out;
+    -webkit-transform-origin: top;
+    -moz-transform-origin: top;
+    transform-origin: top;
+    margin-right: 25px;
+}
+
+.object3 {
+    animation: sway 2.8s infinite;
+    animation-timing-function: ease-in-out;
+    -webkit-transform-origin: top;
+    -moz-transform-origin: top;
+    transform-origin: top;
+    margin-right: 25px;
+}
+  
+.object-shape {
+    width: 25px;
+    height: 25px;
+    display: block;
+    background-color: #eb3b2e;
+    position: relative;
+    
+}
+  
+.object-rope {
+    height: 200px;
+    width: 3px;
+    background-color: #eb3b2e;
+    content:"";
+    display: block;
+    bottom: 54px;
 }

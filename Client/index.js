@@ -6,18 +6,19 @@
 const socket = io();
 let type = ''; //screen or player
 const players = []; // Players in the game
-const components = []; // Components in the game
-let ratio;
+let components = []; // Components in the game
+let ratio = NaN;
 
 /* Screen */
-socket.on('gameCreated', (data) => {
-    console.log(data);
+socket.on('gameCreated', (lobby) => {
+    console.log("Lobby: ")
+    console.log(lobby);
     type = 'screen';
-    document.getElementById('game-id').innerText = data.id;
+    document.getElementById('game-id').innerText = lobby.id;
 });
 
 socket.on('newJoin', (length) => {
-    console.log(length);
+    console.log('Received length: ' + length);
     document.getElementById('num-players').innerText = length;
     document.getElementById('num-players-2').innerText = length;
 });
@@ -31,6 +32,18 @@ socket.on('updateScreen', (game) => {
                 }
             });
         });
+        components = [];
+        console.log(game.components)
+        game.components.forEach(c=> {
+            if (c.name == "flag") {
+                components.push(new Flag(c.x,c.y,c.width,c.height));
+            }
+            else if (c.name == "jackbox") {
+                components.push(new JackBox(c.x, c.y, c.width, c.height))
+
+            }
+        });
+        console.log(components)
     }
 });
 
@@ -52,35 +65,20 @@ socket.on('lobby-closed', (lobbyId) => {
     alert('Host has left the lobby.');
 });
 
-function move() {
-    const x = document.getElementById('moveX').value * 1;
-    const y = document.getElementById('moveY').value * 1;
-    console.log(x);
-    console.log(y);
-
-    if (x * y !== NaN) {
-        movePlayer(x, y);
-    }
-}
-
-function movePlayer(vx, vy) {
-    socket.emit('move',[vx, vy]);
-}
-
 function actPlayer(type) {
     socket.emit('action',type);
 }
 
 /* Both */
 socket.on('gameStart', (lobby) => {
+    console.log("Recieved lobby: ");
     console.log(lobby);
     if (type === 'screen') {
-        //document.getElementById('LOG').innerText = 'You are the screen! THE GAME HAS STARTED!!!';
         Object.values(lobby.game.players).forEach(p=>players.push(new Player(p.x, p.y, p.name)));
 
-        lobby.game.components.forEach(c=>{
-            components.push(makeComponent(c));
-        });
+        // lobby.game.components.forEach(c=>{
+        //     components.push(makeComponent(c));
+        // });
 
         document.getElementById('start-menu').style.display = 'none';
         
@@ -124,7 +122,7 @@ function showJoin() {
 }
 
 function joinGame() {
-    console.log(document.getElementById('join-code').value);
+    console.log("Emitting: " + document.getElementById('join-code').value);
     socket.emit('joinGame', document.getElementById('join-code').value);
     document.getElementById('join-code').value = "";
 }
@@ -136,7 +134,8 @@ function newGame() {
 }
 
 function startGame() {
-    socket.emit('start');
+    socket.emit('start', {height: window.innerHeight, ratio: ratio});
+    console.log("Sent height as: " + window.innerHeight);
 }
 
 //graphics
@@ -157,11 +156,22 @@ setInterval(() => {
     ctx.fillStyle = 'rgb(200,200,200)';
     ctx.fillRect(0,0,window.innerWidth/ratio,window.innerHeight/ratio);
 
+    // Spawn ground while there exists at least one player
+    if (players.length > 0) {
+        let cWidth = ctx.width;
+        ctx.width *= 1.5
+        ctx.beginPath();
+        ctx.moveTo(0, h/ratio - 200/ratio);
+        ctx.lineTo(2000, h/ratio - 200/ratio);//
+        ctx.stroke();
+        ctx.width = cWidth;
+    }
+
     players.forEach(p =>{
         p.updateVerticies();
         p.draw(ctx);
     })
-
+    console.log("comp arr", components)
     components.forEach(c => {
         c.draw(ctx);
     });

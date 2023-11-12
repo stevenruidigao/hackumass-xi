@@ -9,23 +9,27 @@
     <script src="component.js"></script>
     <script src="player.js"></script>
 </head>
-<body style="overflow: hidden">
+<body style="overflow: hidden; overscroll-behavior: none;">
     <canvas id="canvas"></canvas>
     <script src="index.js"></script>
-    <!--input type="text"id="join">
-    <button onclick="joinGame()">Join</button>
-    <button onclick="newGame()">New Game</button>
-    <button onclick="startGame()">Start Game</button>
-    <span id="controls">
-        <input type="text"id="moveX">
-        <input type="text"id="moveY">
-        <button onclick="move()">Move</button>
-    </span-->
-
     <div class="home">
         <div id="start-menu" class="reset-home">
             <div class="center-buttons elementToFadeIn">
-                <h1>Stringy Circlejerk</h1>
+                <div class="object-container elementToFadeIn">
+                    <div class="object1">
+                        <div class="object-rope"></div>
+                        <div class="object-shape"></div>
+                    </div>
+                    <div class="object2">
+                        <div class="object-rope"></div>
+                        <div class="object-shape"></div>
+                    </div>
+                    <div class="object3">
+                        <div class="object-rope"></div>
+                        <div class="object-shape"></div>
+                    </div>
+                </div>
+                <h1>No Strings Attached</h1>
                 <button class="home-button" onclick="newGame()">Create New Game</button>
                 <button class="home-button" onclick="showReq()">Join Existing Game</button>
             </div>
@@ -36,7 +40,6 @@
             </div>
             <div class="permissions elementToFadeIn">
                 <h1>This game requires Motion and Orientation permissions to run. Please press the button below to request permissions.</h1>
-                <!--input id="join-code" style="margin-right: 4px;"-->
                 <button class="home-button home-button2" style="--c:#E95A49" onclick="window.requestPermissions(showJoin)">Request Permissions</button>
             </div>
             <div class="player-lobby elementToFadeIn">
@@ -47,8 +50,12 @@
             <div class="waiting-room elementToFadeIn">
                 <h1>You have joined: <span id="game-id-2"></span></h1>
                 <p>Puppets Present: <span id="num-players-2">0</span></p>
+                <p>Controls: In the game, tile your phone to the left or right to move your puppet.
+                    If you are near an object, press and hold the button and draw the line to interact
+                    with the object.
+                </p>
             </div>
         </div>
-        <div id="player-button"></div>
+        <div id="player-button" class="noselect"></div>
 </body>
 </html>
