@@ -6,7 +6,7 @@
         <title>Device Orientation Detection</title>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
     </head>
-    <body>
+    <body style="">
         <style>
             .noselect {
             -webkit-touch-callout: none; /* iOS Safari */
@@ -18,14 +18,16 @@
                                             supported by Chrome, Edge, Opera and Firefox */
             }
         </style>
-        <h1>Test</h1>
-        <button id="motion-button" onclick="requestMotion()">Allow Motion Data</button>
-        <button id="orientation-button" onclick="requestOrientation()">Allow Orientation Data</button>
-        <button id="reset-button" class="noselect" onclick="reset()">Reset</button>
-        <button id="record-button" class="noselect" onpointerdown="record()" onpointerup="stopRecording()" style="height: 50px">Record</button>
-        <p id="motion-data">Motion Data</p>
-        <p id="orientation-data">Orientation Data</p>
-        <p id="debug"></p>
+        <div class="ui" style="position: sticky">
+            <h1>Test</h1>
+            <button id="motion-button" onclick="requestMotion()">Allow Motion Data</button>
+            <button id="orientation-button" onclick="requestOrientation()">Allow Orientation Data</button>
+            <button id="reset-button" class="noselect" onclick="reset()">Reset</button>
+            <button id="record-button" class="noselect" onpointerdown="record()" onpointerup="stopRecording()" style="height: 200px; width: 200px">Record</button>
+            <p id="motion-data">Motion Data</p>
+            <p id="orientation-data">Orientation Data</p>
+            <p id="debug"></p>
+        </div>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="./qdollar.js"></script>
 
@@ -53,6 +55,7 @@
             var curr_orientation = new THREE.Quaternion(); // the current rotation matrix
 
             var point_array_2D = []; // element: [x, y, z]
+            var point_subarray = [];
             const plane_normal = new THREE.Vector3(0, 1, 0);
             
             var last_time = -1;
@@ -162,7 +165,7 @@
                 // }
                 
                 // document.getElementById('debug').innerText += ' 46';
-                if (relative_accel.reduce((acc, cur, i) => {
+                if (!recording && relative_accel.reduce((acc, cur, i) => {
                     // document.getElementById('debug').innerText += ' 4444444444v' + (acc + ((cur - clean_relative_accel[i]) * (cur - clean_relative_accel[i]))) + ' ';
                     return acc + (cur - clean_relative_accel[i]) * (cur - clean_relative_accel[i]);
 
@@ -185,7 +188,15 @@
 
                     if (!resetting && recording) {
                         let point_3D = (new THREE.Vector3(...position)).projectOnPlane(plane_normal).multiplyScalar(10);
-                        point_array_2D.push((new Point(point_3D.x, point_3D.z, 1)));
+                        point_subarray.push([point_3D.x, point_3D.z]);
+                        
+                        if (point_subarray.length > 2) {
+                            let point = point_subarray.reduce((acc, cur) => [acc[0] + cur[0], acc[1] + cur[1]], [0, 0])
+                               .map(x => x / point_subarray.length);
+                            
+                            point_array_2D.push((new Point(point[0], point[1], 1)));
+                            point_subarray = [];
+                        }
                         
                         // document.getElementById('debug').innerText += ' point_2D: ' + (new Point(point_3D.x, point_3D.y, 1)).X + ', ' + (new Point(point_3D.x, point_3D.y, 1)).Y + ' ';
                     }

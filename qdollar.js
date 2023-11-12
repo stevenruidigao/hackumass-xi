@@ -101,8 +101,8 @@ function Result(name, score, ms) // constructor
 //
 // QDollarRecognizer constants
 //
-const NumPointClouds = 3;
-const NumPoints = 1024;
+const NumPointClouds = 7;
+const NumPoints = 512;
 const Origin = new Point(0,0,0);
 const MaxIntCoord = 1024; // (IntX, IntY) range from [0, MaxIntCoord - 1]
 const LUTSize = 64; // default size of the lookup table is 64 x 64
@@ -122,7 +122,19 @@ function QDollarRecognizer() // constructor
 	this.PointClouds[1] = new PointCloud("vertical line", new Array(
 		new Point(66,7,2),new Point(66,87,2)
 	));
-	this.PointClouds[2] = new PointCloud("circle", new Array(
+	this.PointClouds[2] = new PointCloud("triangle", new Array(
+		new Point(177,554,1),new Point(223,476,1),new Point(268,554,1),new Point(183,554,1)
+	));
+	this.PointClouds[3] = new PointCloud("triangle", new Array(
+		new Point(177,490,1),new Point(223,568,1),new Point(268,490,1),new Point(183,490,1)
+	));
+	this.PointClouds[4] = new PointCloud("triangle", new Array(
+		new Point(177,396,1),new Point(223,299,1),new Point(262,396,1),new Point(177,396,1)
+	));
+	this.PointClouds[5] = new PointCloud("triangle", new Array(
+		new Point(525,306,1),new Point(584,349,1),new Point(525,388,1),new Point(525,306,1)
+	));
+	this.PointClouds[6] = new PointCloud("circle", new Array(
 		new Point(382,310,1),new Point(377,308,1),
 		new Point(373,307,1),new Point(366,307,1),
 		new Point(360,310,1),new Point(356,313,1),
